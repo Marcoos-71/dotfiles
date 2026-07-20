@@ -3,5 +3,9 @@
 "gitlens.ai.model": "vscode",
 "gitlens.ai.vscode.model": "copilot:gpt-4o-mini",
 "editor.defaultFormatter": "charliermarsh.ruff",
-"python.defaultInterpreterPath": "/home/marcos/.venvs/datascience/bin/python"
+"python.defaultInterpreterPath": "/home/marcos/.venvs/datascience/bin/python",
+"editor.fontFamily": "JetBrainsMono Nerd Font, monospace",
+"editor.fontLigatures": true,
+"editor.fontSize": 14,
+"terminal.integrated.fontFamily": "JetBrainsMono Nerd Font"
 }
