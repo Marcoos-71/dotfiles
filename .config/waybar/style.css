@@ -1,0 +1,149 @@
+@import "../omarchy/current/theme/waybar.css";
+
+/* Catppuccin Mocha */
+@define-color mauve    #cba6f7;
+@define-color blue     #89b4fa;
+@define-color teal     #94e2d5;
+@define-color green    #a6e3a1;
+@define-color yellow   #f9e2af;
+@define-color red      #f38ba8;
+@define-color peach    #fab387;
+@define-color overlay1 #7f849c;
+@define-color surface1 #45475a;
+
+* {
+  background-color: @background;
+  color: @foreground;
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+  font-family: 'JetBrainsMono Nerd Font';
+  font-size: 12px;
+}
+
+.modules-left  { margin-left: 8px; }
+.modules-right { margin-right: 8px; }
+
+/* Workspaces */
+#workspaces button {
+  all: initial;
+  padding: 0 6px;
+  margin: 0 1.5px;
+  min-width: 9px;
+}
+#workspaces button.empty { opacity: 0.5; }
+
+/* Arch icon */
+#custom-arch {
+  font-size: 15px;
+  margin: 0 8px 0 4px;
+  color: @blue;
+}
+
+/* Clock */
+#custom-clock {
+  margin-left: 8px;
+  margin-right: 5px;
+}
+
+/* Weather */
+#custom-weather {
+  margin: 0 7.5px;
+}
+#custom-weather.unavailable {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+/* mpris — solo visible cuando hay algo sonando */
+#mpris {
+  margin: 0 8px;
+  color: @overlay1;
+  font-style: italic;
+}
+
+/* Shared right-side spacing */
+#cpu,
+#memory,
+#custom-update,
+#custom-volume,
+#custom-temps,
+#custom-netspeed,
+#gamemode {
+  min-width: 12px;
+  margin: 0 7.5px;
+}
+
+/* CPU — mauve */
+#cpu { color: @mauve; }
+
+/* Memory — blue */
+#memory { color: @blue; }
+
+/* Volume bar */
+#custom-volume {
+  font-size: 11px;
+  letter-spacing: -0.5px;
+  color: @teal;
+}
+#custom-volume.muted { color: @overlay1; }
+
+/* Temperaturas */
+#custom-temps.good     { color: @teal; }
+#custom-temps.warning  { color: @yellow; }
+#custom-temps.critical { color: @red; }
+
+/* Velocidad de red */
+#custom-netspeed {
+  color: @overlay1;
+  font-size: 11px;
+}
+
+/* Game mode */
+#gamemode {
+  color: @peach;
+  margin-right: 5px;
+}
+
+/* Network — azul, con SSID en tooltip */
+#network {
+  margin-right: 13px;
+  color: @blue;
+}
+
+/* Bluetooth */
+#bluetooth    { margin-right: 17px; }
+
+/* Tray */
+#tray         { margin-right: 16px; }
+#custom-expand-icon { margin-right: 18px; }
+
+/* Update indicator */
+#custom-update { font-size: 10px; }
+
+/* Indicadores */
+#custom-screenrecording-indicator,
+#custom-idle-indicator,
+#custom-notification-silencing-indicator {
+  min-width: 12px;
+  margin-left: 5px;
+  margin-right: 0;
+  font-size: 10px;
+  padding-bottom: 1px;
+}
+#custom-screenrecording-indicator.active,
+#custom-idle-indicator.active,
+#custom-notification-silencing-indicator.active {
+  color: @red;
+}
+
+/* Voxtype */
+#custom-voxtype {
+  min-width: 12px;
+  margin: 0 0 0 7.5px;
+}
+#custom-voxtype.recording { color: @red; }
+
+.hidden  { opacity: 0; }
+tooltip  { padding: 2px; }
