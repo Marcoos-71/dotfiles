@@ -28,10 +28,22 @@ if type -q eza
     alias lsa 'eza -lha --group-directories-first --icons=auto'
     alias lt 'eza --tree --level=2 --long --icons --git'
     alias lta 'eza --tree --level=2 --long --icons --git -a'
-    # tree con iconos, colores y git — acepta nivel: tree 3, tree 4...
+    # tree con iconos, colores y git
+    # uso: tree [ruta] [-L nivel]  (nivel por defecto: 3)
     function tree
-        set level (test (count $argv) -gt 0; and echo $argv[1]; or echo 3)
-        eza --tree --level=$level --icons --git --group-directories-first --color=always $argv[2..]
+        set args
+        set level 3
+        set i 1
+        while test $i -le (count $argv)
+            if test $argv[$i] = "-L" -o $argv[$i] = "--level"
+                set i (math $i + 1)
+                set level $argv[$i]
+            else
+                set args $args $argv[$i]
+            end
+            set i (math $i + 1)
+        end
+        eza --tree --level=$level --icons --git --group-directories-first $args
     end
 end
 
