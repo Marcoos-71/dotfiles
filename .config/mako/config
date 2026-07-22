@@ -10,3 +10,4 @@ width=560
 font=sans-serif 17px
 padding=18,24
 border-size=2
+on-notify=exec pw-play /usr/share/sounds/freedesktop/stereo/message-new-instant.oga
