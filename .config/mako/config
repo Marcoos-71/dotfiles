@@ -3,3 +3,10 @@ include=~/.local/share/omarchy/default/mako/core.ini
 text-color=#cdd6f4
 border-color=#cba6f7
 background-color=#1e1e2e
+
+[summary~="Reminder"]
+anchor=top-center
+width=560
+font=sans-serif 17px
+padding=18,24
+border-size=2
