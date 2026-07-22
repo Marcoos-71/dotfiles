@@ -1,0 +1,3 @@
+#!/bin/sh
+# fcitx5 not installed — stub to suppress autostart error
+exit 0
