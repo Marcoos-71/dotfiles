@@ -32,19 +32,19 @@
     },
     {
       "type": "cpu",
-      "key": "󰎠  CPU",
+      "key": "󰻠  CPU",
       "keyColor": "magenta",
       "showPeCoreCount": false
     },
     {
       "type": "gpu",
       "format": "{2}",
-      "key": "󰅙  GPU",
+      "key": "󰾲  GPU",
       "keyColor": "yellow"
     },
     {
       "type": "memory",
-      "key": "󰅛  RAM",
+      "key": "󰍛  RAM",
       "keyColor": "blue"
     },
     {
