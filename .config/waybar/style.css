@@ -9,10 +9,11 @@
 @define-color red      #f38ba8;
 @define-color peach    #fab387;
 @define-color overlay1 #7f849c;
+@define-color surface0 #313244;
 @define-color surface1 #45475a;
 
 * {
-  background-color: @background;
+  background-color: transparent;
   color: @foreground;
   border: none;
   border-radius: 0;
@@ -21,129 +22,154 @@
   font-size: 12px;
 }
 
-.modules-left  { margin-left: 8px; }
-.modules-right { margin-right: 8px; }
-
-/* Workspaces */
-#workspaces button {
-  all: initial;
-  padding: 0 6px;
-  margin: 0 1.5px;
-  min-width: 9px;
-}
-#workspaces button.empty { opacity: 0.5; }
-
-/* Arch icon */
-#custom-arch {
-  font-size: 15px;
-  margin: 0 8px 0 4px;
-  color: @blue;
+window#waybar {
+  background-color: @background;
 }
 
-/* Clock */
-#custom-clock {
-  margin-left: 8px;
-  margin-right: 5px;
+tooltip {
+  background: @surface0;
+  color: @foreground;
+  border: 1px solid @surface1;
+  border-radius: 8px;
+  padding: 6px 10px;
 }
 
-/* Weather */
-#custom-weather {
-  margin: 0 7.5px;
-}
-#custom-weather.unavailable {
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-}
+.modules-left  { margin-left: 6px; }
+.modules-right { margin-right: 6px; }
 
-/* mpris — solo visible cuando hay algo sonando */
-#mpris {
-  margin: 0 8px;
-  color: @overlay1;
-  font-style: italic;
-}
+/* ── Block base ─────────────────────────────────────────────────── */
 
-/* Shared right-side spacing */
+#custom-clock,
+#custom-weather,
+#mpris,
 #cpu,
 #memory,
-#custom-update,
 #custom-volume,
 #custom-temps,
 #custom-netspeed,
-#gamemode {
-  min-width: 12px;
-  margin: 0 7.5px;
+#network,
+#bluetooth,
+#gamemode,
+#custom-update,
+#custom-voxtype,
+#tray,
+#custom-expand-icon {
+  background: @surface0;
+  border-left: 3px solid @overlay1;
+  border-radius: 6px;
+  margin: 4px 2px;
+  padding: 0 10px;
 }
 
-/* CPU — mauve */
-#cpu { color: @mauve; }
+/* ── Colores por módulo ─────────────────────────────────────────── */
 
-/* Memory — blue */
-#memory { color: @blue; }
+#custom-clock    { border-left-color: @blue;     color: @blue;     }
+#custom-weather  { border-left-color: @teal;     color: @teal;     }
+#mpris           { border-left-color: @overlay1; color: @overlay1; font-style: italic; }
+#cpu             { border-left-color: @mauve;    color: @mauve;    }
+#memory          { border-left-color: @blue;     color: @blue;     }
+#custom-volume   { border-left-color: @teal;     color: @teal;     font-size: 11px; letter-spacing: -0.5px; }
+#custom-temps    { border-left-color: @teal;     color: @teal;     }
+#custom-netspeed { border-left-color: @overlay1; color: @overlay1; font-size: 11px; }
+#network         { border-left-color: @blue;     color: @blue;     }
+#bluetooth       { border-left-color: @blue;     color: @blue;     }
+#gamemode        { border-left-color: @peach;    color: @peach;    }
+#custom-update   { border-left-color: @yellow;   color: @yellow;   font-size: 10px; }
+#custom-voxtype  { border-left-color: @mauve;    color: @mauve;    min-width: 12px; }
 
-/* Volume bar */
-#custom-volume {
-  font-size: 11px;
-  letter-spacing: -0.5px;
-  color: @teal;
-}
-#custom-volume.muted { color: @overlay1; }
+/* ── Arch icon / launcher ───────────────────────────────────────── */
 
-/* Temperaturas */
-#custom-temps.good     { color: @teal; }
-#custom-temps.warning  { color: @yellow; }
-#custom-temps.critical { color: @red; }
-
-/* Velocidad de red */
-#custom-netspeed {
-  color: @overlay1;
-  font-size: 11px;
-}
-
-/* Game mode */
-#gamemode {
-  color: @peach;
-  margin-right: 5px;
+#custom-arch {
+  background: @mauve;
+  color: @background;
+  font-size: 15px;
+  margin: 4px 6px 4px 4px;
+  padding: 0 12px;
+  border-radius: 6px;
 }
 
-/* Network — azul, con SSID en tooltip */
-#network {
-  margin-right: 13px;
-  color: @blue;
+/* ── Workspaces ─────────────────────────────────────────────────── */
+
+#workspaces {
+  background: @surface0;
+  border-left: 3px solid @mauve;
+  border-radius: 6px;
+  margin: 4px 4px;
+  padding: 0 4px;
 }
 
-/* Bluetooth */
-#bluetooth    { margin-right: 17px; }
+#workspaces button {
+  all: initial;
+  padding: 0 7px;
+  margin: 0 1px;
+  min-width: 9px;
+  color: @foreground;
+  font-family: 'JetBrainsMono Nerd Font';
+  font-size: 12px;
+  border-radius: 4px;
+}
 
-/* Tray */
-#tray         { margin-right: 16px; }
-#custom-expand-icon { margin-right: 18px; }
+#workspaces button.empty   { opacity: 0.35; }
+#workspaces button:hover   { background: @surface1; border-radius: 4px; }
 
-/* Update indicator */
-#custom-update { font-size: 10px; }
+#workspaces button.active,
+#workspaces button.focused {
+  background: @mauve;
+  color: @background;
+  border-radius: 4px;
+  padding: 0 9px;
+}
 
-/* Indicadores */
+/* ── Tray ───────────────────────────────────────────────────────── */
+
+#tray           { border-left-color: @overlay1; padding: 0 8px; }
+#custom-expand-icon { border-left-color: @overlay1; }
+
+#tray > .passive         { opacity: 0.7; }
+#tray > .needs-attention { background: @red; border-radius: 4px; }
+
+/* ── Estados: temperaturas ──────────────────────────────────────── */
+
+#custom-temps.good     { border-left-color: @teal;   color: @teal;   }
+#custom-temps.warning  { border-left-color: @yellow; color: @yellow; }
+#custom-temps.critical { border-left-color: @red;    color: @red;    }
+
+/* ── Estados: volumen ───────────────────────────────────────────── */
+
+#custom-volume.muted { border-left-color: @overlay1; color: @overlay1; }
+
+/* ── Estados: voxtype ───────────────────────────────────────────── */
+
+#custom-voxtype.recording { border-left-color: @red; color: @red; }
+
+/* ── Weather oculto ─────────────────────────────────────────────── */
+
+#custom-weather.unavailable {
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+}
+
+/* ── Indicadores (pequeños, sin bloque) ─────────────────────────── */
+
 #custom-screenrecording-indicator,
 #custom-idle-indicator,
 #custom-notification-silencing-indicator {
   min-width: 12px;
-  margin-left: 5px;
-  margin-right: 0;
+  margin: 4px 1px;
   font-size: 10px;
   padding-bottom: 1px;
 }
+
 #custom-screenrecording-indicator.active,
 #custom-idle-indicator.active,
 #custom-notification-silencing-indicator.active {
   color: @red;
 }
 
-/* Voxtype */
-#custom-voxtype {
-  min-width: 12px;
-  margin: 0 0 0 7.5px;
-}
-#custom-voxtype.recording { color: @red; }
+/* ── Misc ───────────────────────────────────────────────────────── */
 
-.hidden  { opacity: 0; }
-tooltip  { padding: 2px; }
+.hidden       { opacity: 0; min-width: 0; padding: 0; margin: 0; }
+.tray-group-item { margin: 0 1px; }
