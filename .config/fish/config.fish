@@ -34,6 +34,9 @@ end
 alias ff 'fzf --preview "bat --style=numbers --color=always {}"'
 alias eff '$EDITOR (ff)'
 
+# Vault de Obsidian
+alias vault 'cd ~/Vault && claude'
+
 # fastfetch al abrir terminal
 if test -n "$TERM" -a "$TERM" != "dumb"
     fastfetch
