@@ -37,6 +37,13 @@ alias eff '$EDITOR (ff)'
 # Vault de Obsidian
 alias vault 'cd ~/Vault && claude'
 
+# Utilidades rápidas
+function mkcd
+    mkdir -p $argv[1] && cd $argv[1]
+end
+
+alias syslog 'sudo dmesg --level=err,warn'
+
 # fastfetch al abrir terminal
 if test -n "$TERM" -a "$TERM" != "dumb"
     fastfetch
