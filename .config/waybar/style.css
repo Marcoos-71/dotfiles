@@ -23,7 +23,13 @@
 }
 
 window#waybar {
-  background-color: rgba(30, 30, 46, 0.75);
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(30, 30, 46, 0.75) 15%,
+    rgba(30, 30, 46, 0.75) 85%,
+    transparent
+  );
 }
 
 tooltip {
