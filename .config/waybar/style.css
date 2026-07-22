@@ -23,7 +23,7 @@
 }
 
 window#waybar {
-  background-color: @background;
+  background-color: rgba(30, 30, 46, 0.5);
 }
 
 tooltip {
