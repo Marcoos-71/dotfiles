@@ -32,6 +32,14 @@
     }
   },
 
+  "custom/reminders": {
+    "exec": "~/.local/bin/waybar-reminders.sh",
+    "return-type": "json",
+    "interval": 10,
+    "on-click": "omarchy reminder show",
+    "tooltip": true
+  },
+
   "custom/arch": {
     "format": "󰣇",
     "on-click": "omarchy-menu",
