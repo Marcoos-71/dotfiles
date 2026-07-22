@@ -28,6 +28,16 @@ if type -q eza
     alias lsa 'eza -lha --group-directories-first --icons=auto'
     alias lt 'eza --tree --level=2 --long --icons --git'
     alias lta 'eza --tree --level=2 --long --icons --git -a'
+    # tree con iconos, colores y git — acepta nivel: tree 3, tree 4...
+    function tree
+        set level (test (count $argv) -gt 0; and echo $argv[1]; or echo 3)
+        eza --tree --level=$level --icons --git --group-directories-first --color=always $argv[2..]
+    end
+end
+
+# LS_COLORS con vivid (Catppuccin Mocha) — activo solo si vivid está instalado
+if type -q vivid
+    set -gx LS_COLORS (vivid generate catppuccin-mocha)
 end
 
 # Utilidades
