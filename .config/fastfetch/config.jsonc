@@ -12,7 +12,7 @@
   "modules": [
     {
       "type": "custom",
-      "format": "  [35m [34m [36m [32m [33m [31m [37m "
+      "format": "  [35m [34m [36m [32m [33m [31m [37m[0m"
     },
     "break",
     {
@@ -55,7 +55,7 @@
     "break",
     {
       "type": "custom",
-      "format": "  [35m [34m [36m [32m [33m [31m [37m "
+      "format": "  [35m [34m [36m [32m [33m [31m [37m[0m"
     }
   ]
 }
