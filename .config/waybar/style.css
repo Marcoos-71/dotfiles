@@ -77,6 +77,26 @@ tooltip {
 #custom-update   { border-left-color: @yellow;   color: @yellow;   font-size: 10px; }
 #custom-voxtype  { border-left-color: @mauve;    color: @mauve;    min-width: 12px; }
 
+/* ── Recordatorios ──────────────────────────────────────────────── */
+
+#custom-reminders {
+  background: @surface0;
+  border-left: 3px solid @yellow;
+  border-radius: 6px;
+  margin: 4px 2px;
+  padding: 0 10px;
+  color: @yellow;
+}
+
+#custom-reminders.empty {
+  background: transparent;
+  border: none;
+  color: @overlay1;
+  opacity: 0.3;
+  padding: 0 6px;
+  font-size: 11px;
+}
+
 /* ── Arch icon / launcher ───────────────────────────────────────── */
 
 #custom-arch {
