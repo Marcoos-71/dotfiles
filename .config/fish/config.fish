@@ -66,6 +66,16 @@ end
 
 alias syslog 'sudo dmesg --level=err,warn'
 
+# Yazi — explorador con cd al salir
+function y
+    set tmp (mktemp -t "yazi-cwd.XXXXX")
+    yazi $argv --cwd-file="$tmp"
+    if set cwd (cat -- "$tmp"); and [ -n "$cwd" ]; and [ "$cwd" != "$PWD" ]
+        cd "$cwd"
+    end
+    rm -f -- "$tmp"
+end
+
 # fastfetch al abrir terminal
 if test -n "$TERM" -a "$TERM" != "dumb"
     fastfetch
