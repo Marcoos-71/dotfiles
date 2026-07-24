@@ -7,7 +7,7 @@ fish_add_path $OMARCHY_PATH/bin $HOME/.local/bin
 # Editor
 set -gx EDITOR nvim
 set -gx SUDO_EDITOR nvim
-set -gx BAT_THEME ansi
+set -gx BAT_THEME "Catppuccin-mocha"
 
 # Man pages con bat (como en Omarchy)
 set -gx MANROFFOPT "-c"
