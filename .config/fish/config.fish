@@ -66,6 +66,17 @@ end
 
 alias syslog 'sudo dmesg --level=err,warn'
 
+# Perfil de energía
+function gaming-mode
+    powerprofilesctl set performance
+    echo "Modo gaming: performance"
+end
+
+function work-mode
+    powerprofilesctl set balanced
+    echo "Modo trabajo: balanced"
+end
+
 # Yazi — explorador con cd al salir
 function y
     set tmp (mktemp -t "yazi-cwd.XXXXX")
