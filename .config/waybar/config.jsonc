@@ -83,12 +83,19 @@
   },
 
   "custom/update": {
-    "format": "",
+    "format": "󰚰 Update",
     "exec": "omarchy-update-available",
     "on-click": "omarchy-launch-floating-terminal-with-presentation omarchy-update",
-    "tooltip-format": "Omarchy update disponible",
+    "tooltip-format": "Omarchy update disponible — clic para actualizar",
     "signal": 7,
     "interval": 21600
+  },
+
+  "custom/cleanup": {
+    "format": "󰃢 Limpiar",
+    "on-click": "omarchy-launch-floating-terminal-with-presentation ~/.local/bin/waybar-cleanup.sh",
+    "tooltip-format": "Limpiar caché y paquetes huérfanos",
+    "interval": "once"
   },
 
   "custom/netspeed": {
