@@ -81,6 +81,7 @@ tooltip {
 #bluetooth       { border-left-color: @blue;     color: @blue;     }
 #gamemode        { border-left-color: @peach;    color: @peach;    }
 #custom-update   { border-left-color: @yellow;   color: @yellow;   font-size: 10px; }
+#custom-cleanup  { border-left-color: @green;    color: @green;    font-size: 10px; }
 #custom-voxtype  { border-left-color: @mauve;    color: @mauve;    min-width: 12px; }
 
 /* ── Recordatorios ──────────────────────────────────────────────── */
