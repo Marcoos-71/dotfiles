@@ -41,6 +41,13 @@
     "tooltip": true
   },
 
+  "custom/transfer": {
+    "exec": "~/.local/bin/waybar-transfer.sh",
+    "return-type": "json",
+    "interval": 2,
+    "tooltip": true
+  },
+
   "custom/arch": {
     "format": "󰣇",
     "on-click": "omarchy-menu",
