@@ -84,6 +84,26 @@ tooltip {
 #custom-cleanup  { border-left-color: @green;    color: @green;    font-size: 10px; }
 #custom-voxtype  { border-left-color: @mauve;    color: @mauve;    min-width: 12px; }
 
+/* ── Transferencia ──────────────────────────────────────────────── */
+
+#custom-transfer.active {
+  background: @surface0;
+  border-left: 3px solid @peach;
+  border-radius: 6px;
+  margin: 4px 2px;
+  padding: 0 10px;
+  color: @peach;
+  font-size: 11px;
+}
+
+#custom-transfer.inactive {
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+}
+
 /* ── Recordatorios ──────────────────────────────────────────────── */
 
 #custom-reminders {
