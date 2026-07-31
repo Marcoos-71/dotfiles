@@ -88,6 +88,6 @@ function y
 end
 
 # fastfetch al abrir terminal
-if test -n "$TERM" -a "$TERM" != "dumb"
+if status is-interactive && test -n "$TERM" -a "$TERM" != "dumb"
     fastfetch
 end
