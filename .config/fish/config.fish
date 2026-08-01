@@ -87,6 +87,12 @@ function y
     rm -f -- "$tmp"
 end
 
+# Odysseus AI
+function odysseus
+    ~/.local/bin/odysseus-start &
+    disown
+end
+
 # fastfetch al abrir terminal
 if status is-interactive && test -n "$TERM" -a "$TERM" != "dumb"
     fastfetch
