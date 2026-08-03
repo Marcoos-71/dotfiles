@@ -36,7 +36,7 @@ fi
 if command -v checkupdates &>/dev/null; then
     available=$(checkupdates 2>/dev/null)
     for pkg in "${CRITICAL[@]}"; do
-        if echo "$available" | grep -q "^${pkg} "; do
+        if echo "$available" | grep -q "^${pkg} "; then
             line=$(echo "$available" | grep "^${pkg} ")
             messages+=("$pkg")
             tooltip_lines+=("󰚰 $line")
