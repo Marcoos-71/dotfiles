@@ -90,10 +90,10 @@
   },
 
   "custom/update": {
-    "format": "󰚰 Update",
-    "exec": "omarchy-update-available",
+    "return-type": "json",
+    "format": "{}",
+    "exec": "~/.config/waybar/scripts/check-updates.sh",
     "on-click": "omarchy-launch-floating-terminal-with-presentation omarchy-update",
-    "tooltip-format": "Omarchy update disponible — clic para actualizar",
     "signal": 7,
     "interval": 21600
   },
