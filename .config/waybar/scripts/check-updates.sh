@@ -2,7 +2,7 @@
 
 # Shows in waybar only when there's something worth updating:
 # - Omarchy has a new version
-# - A CVE affects an installed package (arch-audit)
+# - A CVE affects an installed package AND a fixed version is already available (arch-audit -u)
 # - A critical package has an update (linux, mesa, systemd, glibc, openssl)
 
 CRITICAL=(linux mesa systemd glibc openssl)
