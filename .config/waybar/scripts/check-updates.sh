@@ -21,7 +21,7 @@ fi
 
 # 2. Security vulnerabilities
 if command -v arch-audit &>/dev/null; then
-    vuln=$(arch-audit --quiet 2>/dev/null)
+    vuln=$(arch-audit -u --quiet 2>/dev/null)
     if [[ -n "$vuln" ]]; then
         count=$(echo "$vuln" | wc -l)
         messages+=("${count} CVE(s)")
