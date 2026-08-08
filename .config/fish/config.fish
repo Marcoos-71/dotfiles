@@ -2,7 +2,7 @@ set -g fish_greeting ""
 
 # Entorno Omarchy
 set -gx OMARCHY_PATH $HOME/.local/share/omarchy
-fish_add_path $OMARCHY_PATH/bin $HOME/.local/bin
+fish_add_path $OMARCHY_PATH/bin $HOME/.local/bin $HOME/.cargo/bin
 
 # Editor
 set -gx EDITOR nvim
