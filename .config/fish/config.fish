@@ -59,6 +59,9 @@ alias eff '$EDITOR (ff)'
 # Vault de Obsidian
 alias vault 'cd ~/Vault && claude'
 
+# Minecraft — PrismLauncher (instancias, mundos, mods)
+alias minecraft 'cd ~/.local/share/PrismLauncher && claude'
+
 # Utilidades rápidas
 function mkcd
     mkdir -p $argv[1] && cd $argv[1]
