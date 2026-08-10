@@ -29,5 +29,51 @@
     "*.s3db": "${capture}.${extname}-*"
 },
 "sqltools.useNodeRuntime": true,
-"claudeCode.preferredLocation": "panel"
+"claudeCode.preferredLocation": "panel",
+
+// ── LaTeX (extensión LaTeX Workshop) ──────────────────────────────
+// latexmk decide solo cuántas pasadas hacen falta y cuándo ejecutar
+// bibtex, así que es incremental y rápido. La segunda receta es la
+// versión manual, por si latexmk diera problemas.
+"latex-workshop.latex.tools": [
+    {
+        "name": "latexmk",
+        "command": "latexmk",
+        "args": ["-synctex=1", "-interaction=nonstopmode", "-file-line-error", "-pdf", "%DOC%"]
+    },
+    {
+        "name": "pdflatex",
+        "command": "pdflatex",
+        "args": ["-synctex=1", "-interaction=nonstopmode", "-file-line-error", "%DOC%"]
+    },
+    {
+        "name": "bibtex",
+        "command": "bibtex",
+        "args": ["%DOCFILE%"]
+    }
+],
+"latex-workshop.latex.recipes": [
+    {
+        "name": "latexmk (recomendada)",
+        "tools": ["latexmk"]
+    },
+    {
+        "name": "pdflatex -> bibtex -> pdflatex x2",
+        "tools": ["pdflatex", "bibtex", "pdflatex", "pdflatex"]
+    }
+],
+// Recompila al guardar. Si molesta, cambiar a "never" y compilar a mano.
+"latex-workshop.latex.autoBuild.run": "onSave",
+// El PDF se abre en una pestaña al lado; Ctrl+clic salta del PDF al fuente.
+"latex-workshop.view.pdf.viewer": "tab",
+// Los ficheros auxiliares se quedan (latexmk los necesita para ser
+// incremental); se borran solo al cerrar VS Code.
+"latex-workshop.latex.autoClean.run": "onFailed",
+// Los avisos de "overfull hbox" son ruido mientras se escribe.
+"latex-workshop.message.badbox.show": false,
+"[latex]": {
+    "editor.wordWrap": "on",
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": "James-Yu.latex-workshop"
+}
 }
