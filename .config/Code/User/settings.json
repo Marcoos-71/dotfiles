@@ -1,7 +1,5 @@
 { "workbench.colorTheme": "Catppuccin Mocha",
 "update.mode": "none",
-"gitlens.ai.model": "vscode",
-"gitlens.ai.vscode.model": "copilot:gpt-4o-mini",
 "editor.defaultFormatter": "charliermarsh.ruff",
 "python.defaultInterpreterPath": "/home/marcos/.venvs/datascience/bin/python",
 "editor.fontFamily": "JetBrainsMono Nerd Font, monospace",
