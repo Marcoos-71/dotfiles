@@ -1,4 +1,4 @@
-{ "workbench.colorTheme": "Catppuccin Mocha",
+{ "workbench.colorTheme": "Nord",
 "update.mode": "none",
 "editor.defaultFormatter": "charliermarsh.ruff",
 "python.defaultInterpreterPath": "/home/marcos/.venvs/datascience/bin/python",
