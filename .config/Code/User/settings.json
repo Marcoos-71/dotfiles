@@ -73,5 +73,11 @@
     "editor.wordWrap": "on",
     "editor.formatOnSave": false,
     "editor.defaultFormatter": "James-Yu.latex-workshop"
-}
+},
+"workbench.editorAssociations": {
+    "*.copilotmd": "vscode.markdown.preview.editor",
+    "*.md": "vscode.markdown.preview.editor"
+},
+"python.analysis.typeCheckingMode": "basic",
+"extensions.ignoreRecommendations": true
 }
