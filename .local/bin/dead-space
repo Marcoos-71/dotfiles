@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+GAME_DIR="$HOME/Games/Dead Space 2023 Remake"
+
+export GAMEID=umu-1693980
+export PROTONPATH="$HOME/.local/share/Steam/compatibilitytools.d/GE-Proton11-1"
+export WINEPREFIX="$GAME_DIR/.wine-prefix"
+export WINEDEBUG=-all
+
+LOG="$HOME/.local/state/dead-space.log"
+mkdir -p "$(dirname "$LOG")"
+
+cd "$GAME_DIR" || exit 1
+exec gamemoderun umu-run "Dead Space.exe" "$@" >"$LOG" 2>&1

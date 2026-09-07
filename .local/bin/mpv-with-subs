@@ -1,0 +1,26 @@
+#!/bin/bash
+VIDEO="$1"
+
+# Decode file:// URI
+VIDEO_PATH="${VIDEO#file://}"
+VIDEO_PATH="$(python3 -c "import sys, urllib.parse; print(urllib.parse.unquote(sys.argv[1]))" "$VIDEO_PATH" 2>/dev/null || echo "$VIDEO_PATH")"
+
+VIDEO_DIR="$(dirname "$VIDEO_PATH")"
+VIDEO_NAME="$(basename "$VIDEO_PATH")"
+VIDEO_STEM="${VIDEO_NAME%.*}"
+SUB_DIR="$VIDEO_DIR/Subs/$VIDEO_STEM"
+
+SUB=""
+if [ -d "$SUB_DIR" ]; then
+    SUB=$(find "$SUB_DIR" -name "*es-ES*" -name "*.srt" 2>/dev/null | sort | head -1)
+    [ -z "$SUB" ] && SUB=$(find "$SUB_DIR" -name "*es-419*" -name "*.srt" 2>/dev/null | sort | head -1)
+    [ -z "$SUB" ] && SUB=$(find "$SUB_DIR" -name "*en-US*" -name "*.srt" 2>/dev/null | sort | head -1)
+    [ -z "$SUB" ] && SUB=$(find "$SUB_DIR" -name "*English*" -name "*.srt" 2>/dev/null | sort | head -1)
+    [ -z "$SUB" ] && SUB=$(find "$SUB_DIR" -name "*.srt" 2>/dev/null | sort | head -1)
+fi
+
+if [ -n "$SUB" ]; then
+    exec mpv --player-operation-mode=pseudo-gui --sub-file="$SUB" -- "$VIDEO"
+else
+    exec mpv --player-operation-mode=pseudo-gui -- "$VIDEO"
+fi

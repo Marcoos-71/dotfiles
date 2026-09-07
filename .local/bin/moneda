@@ -1,0 +1,45 @@
+#!/usr/bin/env fish
+# moneda — tira una moneda al aire en la terminal
+
+set -l cara "  ___
+ /   \\
+| CARA|
+ \\___/"
+set -l cruz "  ___
+ /   \\
+| CRUZ|
+ \\___/"
+
+# animación de giro
+for i in (seq 8)
+    if test (math $i % 2) -eq 0
+        set frame "  ___
+ /   \\
+|  |  |
+ \\___/"
+    else
+        set frame "  ___
+ /   \\
+| --- |
+ \\___/"
+    end
+    clear
+    echo "$frame"
+    sleep 0.08
+end
+
+# resultado
+if test (random 0 1) -eq 0
+    set result $cara
+    set label "¡CARA!"
+else
+    set result $cruz
+    set label "¡CRUZ!"
+end
+
+clear
+echo "$result"
+echo
+set_color yellow --bold
+echo "  $label"
+set_color normal

@@ -1,0 +1,14 @@
+#!/bin/bash
+# Start Ollama if not already running
+if ! pgrep -x ollama > /dev/null 2>&1; then
+    ollama serve > /dev/null 2>&1 &
+    sleep 2
+fi
+
+# Bring up the Docker Compose stack if not already running
+cd "$HOME/odysseus"
+if ! docker compose ps --status running 2>/dev/null | grep -q "odysseus"; then
+    docker compose up -d
+fi
+
+chromium --app=http://localhost:7000

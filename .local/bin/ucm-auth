@@ -1,0 +1,87 @@
+#!/home/marcos/.local/share/uv/tools/playwright/bin/python3
+import sys
+import subprocess
+from playwright.sync_api import sync_playwright
+
+log = open('/tmp/ucm-auth.log', 'w')
+log.write(f"args: {sys.argv}\n"); log.flush()
+
+url = sys.argv[1]
+
+def secret(key):
+    return subprocess.run(
+        ['secret-tool', 'lookup', 'service', 'ucm-vpn', 'key', key],
+        capture_output=True, text=True
+    ).stdout.strip()
+
+email    = secret('email')
+password = secret('password')
+totp_key = secret('totp')
+
+PROFILE_DIR = '/home/marcos/.local/share/vpn-chromium-profile'
+
+try:
+    with sync_playwright() as p:
+        context = p.chromium.launch_persistent_context(PROFILE_DIR, headless=False)
+        page = context.new_page()
+        page.goto(url)
+        log.write(f"url: {page.url}\n"); log.flush()
+
+        try:
+            page.wait_for_selector('input[type="password"]', timeout=8000)
+            log.write("form found\n"); log.flush()
+
+            # Email: usar el autocompletado de Chrome (ya tiene las credenciales guardadas)
+            email_field = page.locator('input[type="text"], input[type="email"]').first
+            email_field.click()
+            page.wait_for_timeout(600)
+            # Seleccionar primera sugerencia del autocomplete con ArrowDown + Enter
+            page.keyboard.press('ArrowDown')
+            page.wait_for_timeout(300)
+            page.keyboard.press('Enter')
+            page.wait_for_timeout(400)
+            log.write(f"autocomplete selected, email={email_field.input_value()}, pass={page.locator('input[type=\"password\"]').input_value() != ''}\n"); log.flush()
+
+            # Marcar "Confiar en este equipo" para que no pida 2FA en futuras conexiones
+            trust_checkbox = page.locator('input[type="checkbox"]')
+            if trust_checkbox.count() > 0 and not trust_checkbox.is_checked():
+                trust_checkbox.check()
+                log.write("trust checkbox marked\n"); log.flush()
+
+            # 2FA: buscar el campo con varios selectores posibles
+            totp_locator = page.locator(
+                'input[name*="TOTP"], input[name*="totp"], input[name*="otp"], '
+                'input[id*="totp"], input[id*="otp"], input[id*="TOTP"]'
+            )
+            if totp_locator.count() > 0:
+                totp_code = subprocess.run(
+                    ['oathtool', '--totp', '-b', totp_key],
+                    capture_output=True, text=True
+                ).stdout.strip()
+                log.write(f"2FA detected, code: {totp_code}\n"); log.flush()
+                totp_locator.first.click()
+                totp_locator.first.press_sequentially(totp_code, delay=40)
+            else:
+                log.write("no 2FA field detected\n"); log.flush()
+
+            page.locator('#submit_ok').click()
+            log.write("submitted\n"); log.flush()
+
+        except Exception as e:
+            log.write(f"form not found or already authenticated: {e}\n"); log.flush()
+
+        # Esperar a que gpclient capture el token (se cierra solo cuando lo obtiene)
+        try:
+            page.wait_for_timeout(15000)
+        except Exception:
+            pass
+        try:
+            context.close()
+        except Exception:
+            pass
+        log.write("done\n")
+
+except Exception as e:
+    log.write(f"ERROR: {e}\n")
+finally:
+    log.close()

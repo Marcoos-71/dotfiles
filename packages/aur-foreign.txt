@@ -1,0 +1,14 @@
+bottles
+catppuccin-cursors-mocha
+game-devices-udev
+kepubify-bin
+nordzy-cursors
+nordzy-hyprcursors
+nuclear-player-bin
+ovito
+papirus-folders-git
+prismlauncher-git
+protonup-qt
+streamrip
+upscayl
+zen-browser-bin

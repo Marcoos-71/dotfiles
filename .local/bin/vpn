@@ -1,0 +1,37 @@
+#!/bin/bash
+set -e
+
+case "${1:-connect}" in
+    status)
+        if pgrep -x gpclient > /dev/null; then
+            IFACE=$(ip link show | grep -oE 'gpd[0-9]+|tun[0-9]+' | head -1)
+            if [[ -n "$IFACE" ]]; then
+                IP=$(ip -4 addr show "$IFACE" 2>/dev/null | grep -oP '(?<=inet )\S+' | head -1)
+                echo "Conectado ($IFACE — $IP)"
+            else
+                echo "Conectando..."
+            fi
+        else
+            echo "Desconectado"
+        fi
+        ;;
+    disconnect)
+        sudo gpclient disconnect
+        ;;
+    connect)
+        UCM_PASS=$(secret-tool lookup service ucm-vpn key password)
+        if [[ -z "$UCM_PASS" ]]; then
+            echo "Error: contraseña no encontrada en keyring"
+            exit 1
+        fi
+        echo -n "$UCM_PASS" | wl-copy
+        echo "Contraseña copiada al portapapeles (Ctrl+V para pegar)"
+        nohup sudo gpclient connect galeria.ucm.es > /tmp/gpclient.log 2>&1 &
+        disown
+        echo "VPN corriendo en background (logs: /tmp/gpclient.log)"
+        ;;
+    *)
+        echo "Uso: vpn [connect|disconnect|status]"
+        exit 1
+        ;;
+esac
