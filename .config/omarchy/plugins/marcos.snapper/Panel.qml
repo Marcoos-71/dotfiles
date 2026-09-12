@@ -31,7 +31,7 @@ Panel {
     bar: root.bar
     open: root.opened
     focusTarget: keyCatcher
-    contentWidth: panel.fittedContentWidth(Style.space(260))
+    contentWidth: panel.fittedContentWidth(Style.space(300))
     contentHeight: panel.fittedContentHeight(column.implicitHeight)
 
     PanelKeyCatcher {
@@ -99,8 +99,8 @@ Panel {
           text: {
             if (!root.hostWidget) return ""
             if (root.hostWidget.uncoveredCount > 0)
-              return root.hostWidget.uncoveredCount + " transacción(es) de pacman sin snapshot"
-            return "Cada transacción de pacman tiene su snapshot"
+              return root.hostWidget.uncoveredCount + " sin snapshot"
+            return "Todo cubierto"
           }
           color: root.hostWidget && root.hostWidget.uncoveredCount > 0 ? Color.urgent : Color.popups.text
           opacity: root.hostWidget && root.hostWidget.uncoveredCount > 0 ? 1 : 0.75

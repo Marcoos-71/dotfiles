@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "marcos.vault-capture",
+  "name": "Vault capture",
+  "version": "1.0.0",
+  "author": "marcos",
+  "description": "Quick capture into the Obsidian vault, filed by category",
+  "kinds": ["bar-widget"],
+  "entryPoints": { "barWidget": "BarWidget.qml" },
+  "barWidget": {
+    "displayName": "Vault capture",
+    "description": "Quick capture into the vault",
+    "category": "Productivity",
+    "allowMultiple": false
+  }
+}
