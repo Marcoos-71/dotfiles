@@ -113,9 +113,18 @@ def patch(path: Path, expr: str) -> str:
         path.write_text(text)
         return "updated"
 
+    # Colours written by an older version of this script, which derived them
+    # from the accent instead of using a fixed palette.
+    legacy = re.compile(r"\(?Qt\.hsva\(\(\(Color\.accent\.hsvHue.*?, 1\)\)?")
+    if legacy.search(text):
+        text = legacy.sub(expr, text)
+        path.write_text(text)
+        return "migrated"
+
     # Hand-written widget: keep its state logic, replace only the neutral base.
+    # The marker goes in so the next run can find and update this one.
     if NEUTRAL in text:
-        text = text.replace(NEUTRAL, expr, 1)
+        text = text.replace(NEUTRAL, f"{expr}  {marker} cluster colour", 1)
         path.write_text(text)
         return "rebased"
 
