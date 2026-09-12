@@ -172,7 +172,11 @@ def main() -> int:
 
     # The stock palette is the template: it defines which keys exist and keeps
     # the hue keys. Kept aside on first run so the theme can be restored.
-    stock_backup = target_dir / "colors.toml.stock"
+    # Stored outside the theme folder, which `omarchy theme refresh`
+    # materialises wholesale.
+    backup_dir = USER_THEMES / ".stock-colors"
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    stock_backup = backup_dir / f"{theme_name}.toml"
     if stock_backup.exists():
         template = stock_backup.read_text()
     else:
