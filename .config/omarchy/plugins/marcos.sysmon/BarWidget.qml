@@ -129,11 +129,7 @@ BarWidget {
     running: true
     repeat: true
     triggeredOnStart: true
-    onTriggered: {
-      root.refresh()
-      console.log("SYSMON label=[" + root.label + "] width=" + button.implicitWidth
-        + " cpuPath=" + root.cpuTempPath + " gpuPath=" + root.gpuTempPath)
-    }
+    onTriggered: root.refresh()
   }
 
   WidgetButton {
