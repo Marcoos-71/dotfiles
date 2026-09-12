@@ -2,9 +2,10 @@
 Description=Watch the Omarchy background symlink
 
 [Path]
-# The symlink is replaced on every wallpaper change, so the parent directory
-# sees a change event for this name.
-PathChanged=%h/.local/state/omarchy/current/background
+# The directory, not the symlink: a path unit follows symlinks and would watch
+# the image file instead of noticing the link being repointed. The service is
+# idempotent, so the echo of its own writes into this directory is a no-op.
+PathChanged=%h/.local/state/omarchy/current
 Unit=omarchy-theme-from-wallpaper.service
 
 [Install]

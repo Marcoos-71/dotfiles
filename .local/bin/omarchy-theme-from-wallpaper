@@ -98,8 +98,8 @@ def boost(rgb: tuple[int, int, int], min_value: float, min_saturation: float) ->
 def palette(image: Path, count: int = 8) -> list[tuple[int, int, int]]:
     """Dominant colors, most common first."""
     out = run([
-        "magick", str(image),
-        "-resize", "200x200^",
+        "magick", "-limit", "thread", "2", str(image),
+        "-thumbnail", "120x120",
         "-colors", str(count),
         "-format", "%c",
         "histogram:info:",
