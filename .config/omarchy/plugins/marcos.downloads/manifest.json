@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "marcos.downloads",
+  "name": "Downloads",
+  "version": "1.0.0",
+  "author": "marcos",
+  "description": "Recent browser downloads and qBittorrent activity",
+  "kinds": ["bar-widget"],
+  "entryPoints": { "barWidget": "BarWidget.qml" },
+  "barWidget": {
+    "displayName": "Downloads",
+    "description": "Recent downloads and torrents",
+    "category": "Productivity",
+    "allowMultiple": false
+  }
+}
