@@ -8,7 +8,7 @@
 
 **Tech Stack:** QML / Quickshell, plain JS for testable logic, Python 3 (stdlib only) for `omarchy-agenda`, `deno test` as the test runner, systemd user timers, `vdirsyncer` + `khal` from Arch `extra`.
 
-**Spec:** `docs/superpowers/specs/2026-09-13-omarchy-dashboard-design.md`
+**Spec:** `docs/dashboard/design.md`
 
 ## Global Constraints
 
