@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Recolor the active Omarchy theme from the current wallpaper.
 
-Only the neutral roles (backgrounds, foregrounds, accent, selection, muted) are
-derived from the image. The semantic hue keys a theme defines -- red, green,
+Only the neutral roles (backgrounds, foregrounds, selection, muted) are derived
+from the image; the accent stays whatever the theme defines. The semantic hue keys a theme defines -- red, green,
 yellow and friends -- are left exactly as the theme shipped them, because a
 "red" that stops being red breaks every urgency cue in the shell.
 
@@ -29,7 +29,10 @@ HOME = Path.home()
 STATE = HOME / ".local/state/omarchy/current"
 USER_THEMES = HOME / ".config/omarchy/themes"
 
-# Keys whose value should follow the wallpaper. Everything else is preserved.
+# Keys whose value should follow the wallpaper. Everything else is preserved,
+# including `accent` and the selection tint: those carry the theme's identity
+# (Mocha's mauve) and washing them out with whatever the image happens to
+# contain loses exactly what makes the theme look designed.
 NEUTRAL_KEYS = {
     "background",
     "dark_background",
@@ -39,12 +42,10 @@ NEUTRAL_KEYS = {
     "dark_foreground",
     "light_foreground",
     "bright_foreground",
-    "accent",
     "selection",
     "muted",
     "cursor",
     "selection_foreground",
-    "selection_background",
 }
 
 HEX = re.compile(r"#([0-9a-fA-F]{6})")
@@ -152,12 +153,10 @@ def derive(colors: list[tuple[int, int, int]]) -> dict[str, str]:
         "bright_foreground": to_hex(fg),
         "light_foreground": to_hex(mix(fg, bg, 0.2)),
         "dark_foreground": to_hex(mix(fg, bg, 0.55)),
-        "accent": to_hex(accent),
         "selection": to_hex(mix(bg, accent, 0.35)),
         "muted": to_hex(mix(bg, fg, 0.45)),
         "cursor": to_hex(fg),
         "selection_foreground": to_hex(bg),
-        "selection_background": to_hex(accent),
     }
 
 
@@ -234,7 +233,7 @@ def main() -> int:
     )
 
     stamp.write_text(fingerprint)
-    print(f"{theme_name}: recolored from {wallpaper.name} (accent {derived['accent']})")
+    print(f"{theme_name}: recolored from {wallpaper.name} (background {derived['background']})")
     return 0
 
 

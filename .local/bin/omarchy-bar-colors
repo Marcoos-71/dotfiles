@@ -34,10 +34,11 @@ ENV = dict(os.environ, OMARCHY_PATH="/usr/share/omarchy")
 # wallpaper accent came out too desaturated to tell the groups apart at a
 # glance, and Mocha's palette is designed for exactly this job on a dark bar.
 CLUSTERS = {
-    "identity": "#cba6f7",  # mauve
-    "system": "#94e2d5",    # teal
-    "context": "#89b4fa",   # blue
-    "tools": "#fab387",     # peach
+    "identity": "#cba6f7",   # mauve
+    "resources": "#a6e3a1",  # green
+    "devices": "#94e2d5",    # teal
+    "context": "#89b4fa",    # blue
+    "tools": "#fab387",      # peach
 }
 
 # Widgets that stay neutral on purpose: the tray shows other apps' own icons,
