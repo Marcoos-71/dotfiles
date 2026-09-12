@@ -1,0 +1,11 @@
+[Unit]
+Description=Watch the Omarchy background symlink
+
+[Path]
+# The symlink is replaced on every wallpaper change, so the parent directory
+# sees a change event for this name.
+PathChanged=%h/.local/state/omarchy/current/background
+Unit=omarchy-theme-from-wallpaper.service
+
+[Install]
+WantedBy=default.target

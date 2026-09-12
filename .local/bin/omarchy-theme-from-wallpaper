@@ -167,6 +167,14 @@ def main() -> int:
     if not wallpaper.is_file():
         raise SystemExit(f"wallpaper not found: {wallpaper}")
 
+    # This runs from a watcher on the state directory, and the refresh below
+    # writes into that same directory. Without this guard the two would chase
+    # each other forever; with it, the echo of our own write is a no-op.
+    stamp = STATE.parent / "wallpaper-theme.stamp"
+    fingerprint = f"{theme_name}\n{wallpaper}\n"
+    if "--force" not in sys.argv and stamp.is_file() and stamp.read_text() == fingerprint:
+        return 0
+
     target_dir = USER_THEMES / theme_name
     target = target_dir / "colors.toml"
     target_dir.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,7 @@
+[Unit]
+Description=Recolor the active Omarchy theme from the current wallpaper
+
+[Service]
+Type=oneshot
+Environment=OMARCHY_PATH=/usr/share/omarchy
+ExecStart=%h/.local/bin/omarchy-theme-from-wallpaper
