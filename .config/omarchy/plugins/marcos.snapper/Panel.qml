@@ -15,76 +15,99 @@ Panel {
   readonly property var barIdentity: hostWidget || root
 
   readonly property var buckets: hostWidget ? hostWidget.dayBuckets() : []
+  // Sunday-first to match Date.getDay().
   readonly property string dayInitials: "DLMXJVS"
 
   function cellColor(bucket) {
     if (bucket.missing) return Color.urgent
     if (bucket.snapshots > 0) return Color.accent
-    return Qt.rgba(Color.foreground.r, Color.foreground.g, Color.foreground.b, 0.14)
+    return Qt.rgba(Color.popups.text.r, Color.popups.text.g, Color.popups.text.b, 0.14)
   }
 
-  content: Column {
-    spacing: Style.space(10)
+  KeyboardPanel {
+    id: panel
+    anchorItem: root.anchorItem
+    owner: root.barIdentity
+    bar: root.bar
+    open: root.opened
+    focusTarget: keyCatcher
+    contentWidth: panel.fittedContentWidth(Style.space(260))
+    contentHeight: panel.fittedContentHeight(column.implicitHeight)
 
-    Text {
-      text: "Snapshots"
-      color: Color.popups.text
-      font.family: Style.font.family
-      font.pixelSize: Style.font.subtitle
-    }
+    PanelKeyCatcher {
+      id: keyCatcher
+      anchors.fill: parent
+      onCloseRequested: root.close()
+      onTabRequested: function(direction) { root.switchPanel(direction) }
 
-    Text {
-      text: root.hostWidget
-        ? (root.hostWidget.snapperReadable
-          ? "Último: " + root.hostWidget.humanAge(root.hostWidget.lastSnapshotAt)
-          : "snapper no accesible")
-        : ""
-      color: Color.popups.text
-      opacity: 0.75
-      font.family: Style.font.family
-      font.pixelSize: Style.font.bodySmall
-    }
+      Column {
+        id: column
+        width: parent.width
+        spacing: Style.space(10)
 
-    Row {
-      spacing: Style.space(4)
+        Text {
+          text: "Snapshots"
+          color: Color.popups.text
+          font.family: Style.font.family
+          font.pixelSize: Style.font.subtitle
+        }
 
-      Repeater {
-        model: root.buckets
+        Text {
+          text: root.hostWidget
+            ? (root.hostWidget.snapperReadable
+              ? "Último: " + root.hostWidget.humanAge(root.hostWidget.lastSnapshotAt)
+              : "snapper no accesible")
+            : ""
+          color: Color.popups.text
+          opacity: 0.75
+          font.family: Style.font.family
+          font.pixelSize: Style.font.bodySmall
+        }
 
-        Column {
-          required property var modelData
-          spacing: Style.space(3)
+        Row {
+          spacing: Style.space(4)
 
-          Rectangle {
-            width: Style.space(22)
-            height: Style.space(22)
-            radius: Style.space(4)
-            color: root.cellColor(modelData)
-          }
+          Repeater {
+            model: root.buckets
 
-          Text {
-            anchors.horizontalCenter: parent.horizontalCenter
-            text: root.dayInitials.charAt(new Date(modelData.at * 1000).getDay())
-            color: Color.popups.text
-            opacity: 0.6
-            font.family: Style.font.family
-            font.pixelSize: Style.font.caption
+            Column {
+              required property var modelData
+              spacing: Style.space(3)
+
+              Rectangle {
+                width: Style.space(24)
+                height: Style.space(24)
+                radius: Style.space(4)
+                color: root.cellColor(modelData)
+              }
+
+              Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: root.dayInitials.charAt(new Date(modelData.at * 1000).getDay())
+                color: Color.popups.text
+                opacity: 0.6
+                font.family: Style.font.family
+                font.pixelSize: Style.font.caption
+              }
+            }
           }
         }
-      }
-    }
 
-    Text {
-      text: {
-        if (!root.hostWidget) return ""
-        if (root.hostWidget.uncoveredCount > 0)
-          return root.hostWidget.uncoveredCount + " transacción(es) de pacman sin snapshot"
-        return "Cada transacción de pacman tiene su snapshot"
+        Text {
+          width: parent.width
+          wrapMode: Text.WordWrap
+          text: {
+            if (!root.hostWidget) return ""
+            if (root.hostWidget.uncoveredCount > 0)
+              return root.hostWidget.uncoveredCount + " transacción(es) de pacman sin snapshot"
+            return "Cada transacción de pacman tiene su snapshot"
+          }
+          color: root.hostWidget && root.hostWidget.uncoveredCount > 0 ? Color.urgent : Color.popups.text
+          opacity: root.hostWidget && root.hostWidget.uncoveredCount > 0 ? 1 : 0.75
+          font.family: Style.font.family
+          font.pixelSize: Style.font.caption
+        }
       }
-      color: root.hostWidget && root.hostWidget.uncoveredCount > 0 ? Color.urgent : Color.popups.text
-      opacity: root.hostWidget && root.hostWidget.uncoveredCount > 0 ? 1 : 0.75
-      font.family: Style.font.family
-      font.pixelSize: Style.font.caption
     }
   }
 }
