@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# Reads qBittorrent's WebUI API and prints a small JSON summary.
+#
+# The credentials live in ~/.config/omarchy/secrets/qbittorrent (mode 600,
+# deliberately outside the dotfiles repo) and are only ever passed to curl from
+# a file, never on a command line, so they stay out of `ps` and out of QML.
+#
+# Always prints valid JSON, including when qBittorrent is down, so the caller
+# has one shape to parse and can simply hide itself when available is false.
+
+set -uo pipefail
+
+SECRETS="${XDG_CONFIG_HOME:-$HOME/.config}/omarchy/secrets/qbittorrent"
+RUNTIME="${XDG_RUNTIME_DIR:-/tmp}"
+COOKIES="$RUNTIME/omarchy-qbittorrent.cookies"
+HOST="${QBITTORRENT_HOST:-http://localhost:8080}"
+API="$HOST/api/v2"
+TIMEOUT=3
+LIMIT="${1:-5}"
+
+unavailable() {
+  printf '{"available":false,"reason":"%s","downloading":[],"completed":[]}\n' "${1:-unreachable}"
+  exit 0
+}
+
+[[ -f $SECRETS ]] || unavailable "no-credentials"
+
+username=""
+password=""
+while IFS='=' read -r key value; do
+  case "$key" in
+    username) username="$value" ;;
+    # The password may legitimately contain '=', so only the first one splits.
+    password) password="${value}" ;;
+  esac
+done < <(sed -E 's/^([a-z]+)=/\1\t/' "$SECRETS" | tr '\t' '=' )
+
+# Re-read preserving everything after the first '=' for the password.
+username=$(sed -n 's/^username=//p' "$SECRETS")
+password=$(sed -n 's/^password=//p' "$SECRETS")
+[[ -n $username && -n $password ]] || unavailable "bad-credentials"
+
+api_get() {
+  curl -fsS --max-time "$TIMEOUT" -b "$COOKIES" "$API/$1" 2>/dev/null
+}
+
+login() {
+  umask 077
+  # --data-urlencode keeps special characters intact; the values come from
+  # variables rather than the argument list of a shell command echoed anywhere.
+  curl -fsS --max-time "$TIMEOUT" -c "$COOKIES" \
+    --data-urlencode "username=$username" \
+    --data-urlencode "password=$password" \
+    "$API/auth/login" >/dev/null 2>&1
+}
+
+# A stale cookie is the common case, so try the cheap call first and only log
+# in when it fails.
+if ! api_get "app/version" >/dev/null; then
+  login || unavailable "login-failed"
+  api_get "app/version" >/dev/null || unavailable "unreachable"
+fi
+
+downloading=$(api_get "torrents/info?filter=downloading&sort=progress&limit=$LIMIT")
+completed=$(api_get "torrents/info?filter=completed&sort=completion_on&reverse=true&limit=$LIMIT")
+
+[[ -n $downloading ]] || downloading="[]"
+[[ -n $completed ]] || completed="[]"
+
+jq -n \
+  --argjson downloading "$downloading" \
+  --argjson completed "$completed" \
+  '{
+     available: true,
+     downloading: [$downloading[] | {name, progress, dlspeed, eta, state}],
+     completed: [$completed[] | {name, completion_on}]
+   }'
