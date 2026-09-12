@@ -45,7 +45,7 @@ BarWidget {
 
   readonly property string label: root.vertical
     ? fmtPercent(cpuPercent)
-    : "󰻠 " + fmtPercent(cpuPercent) + "  󰅛 " + fmtPercent(memPercent) + fmtTemps()
+    : "󰻠 " + fmtPercent(cpuPercent) + "  󰍛 " + fmtPercent(memPercent) + fmtTemps()
 
   function readCpu() {
     cpuStat.reload()
