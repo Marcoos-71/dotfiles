@@ -80,6 +80,20 @@ def mix(a: tuple[int, int, int], b: tuple[int, int, int], amount: float) -> tupl
     return tuple(a[i] + (b[i] - a[i]) * amount for i in range(3))
 
 
+def boost(rgb: tuple[int, int, int], min_value: float, min_saturation: float) -> tuple[int, int, int]:
+    """Raise brightness and colorfulness to a floor, keeping the hue."""
+    r, g, b = (c / 255 for c in rgb)
+    high, low = max(r, g, b), min(r, g, b)
+    value = max(high, min_value)
+    sat = (high - low) / high if high > 0 else 0.0
+    if high == low:  # true grey has no hue to preserve
+        return tuple(round(value * 255) for _ in range(3))
+    sat = max(sat, min_saturation)
+    # Rebuild the color at the new value/saturation on the original hue.
+    scaled = [(c - low) / (high - low) for c in (r, g, b)]
+    return tuple(round((value * (1 - sat) + value * sat * s) * 255) for s in scaled)
+
+
 def palette(image: Path, count: int = 8) -> list[tuple[int, int, int]]:
     """Dominant colors, most common first."""
     out = run([
