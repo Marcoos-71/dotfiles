@@ -121,10 +121,19 @@ def patch(path: Path, expr: str) -> str:
         path.write_text(text)
         return "migrated"
 
+    # Already carrying one of our palette colours: swap it for this widget's.
+    # Matching the palette rather than leaving a comment keeps re-runs working
+    # even when the colour sits inside a ternary, where a comment would
+    # swallow the rest of the expression.
+    palette = re.compile("|".join(re.escape(c) for c in CLUSTERS.values()))
+    if palette.search(text):
+        text = palette.sub(CLUSTERS[cluster_of(expr)], text)
+        path.write_text(text)
+        return "updated"
+
     # Hand-written widget: keep its state logic, replace only the neutral base.
-    # The marker goes in so the next run can find and update this one.
     if NEUTRAL in text:
-        text = text.replace(NEUTRAL, f"{expr}  {marker} cluster colour", 1)
+        text = text.replace(NEUTRAL, expr, 1)
         path.write_text(text)
         return "rebased"
 
