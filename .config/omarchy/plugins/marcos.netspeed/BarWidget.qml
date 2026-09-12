@@ -129,7 +129,7 @@ BarWidget {
     text: root.vertical ? root.fmtRate(root.rxRate) : root.label
     // Only the transfer state overrides the color; the idle state inherits the
     // bar's own foreground, which adapts to the wallpaper on a transparent bar.
-    foreground: root.transferring ? Color.accent : "#94e2d5"
+    foreground: root.transferring ? Color.accent : "#a6e3a1"
     fontSize: Style.font.caption
     horizontalMargin: 8
     tooltipText: root.iface === ""

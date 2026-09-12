@@ -140,7 +140,7 @@ BarWidget {
     // Normal state deliberately leaves `foreground` to the bar: on a
     // transparent bar the shell samples the wallpaper (omarchy-bar-text-color)
     // to pick a readable text color, and hardcoding one fights that.
-    foreground: root.hot ? Color.urgent : (root.warm ? warnColor.value : "#94e2d5")
+    foreground: root.hot ? Color.urgent : (root.warm ? warnColor.value : "#a6e3a1")
     fontSize: Style.font.caption
     horizontalMargin: 8
     tooltipText: "CPU " + root.fmtPercent(root.cpuPercent)

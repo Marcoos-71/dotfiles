@@ -341,6 +341,30 @@ Panel {
     bar: root.bar
     foreground: "#fab387"  // bar-colors: cluster colour, re-applied by omarchy-bar-colors
     text: "󱚣"
+    // The plugin ships each provider's mark, and Claude's carries its own
+    // orange, so the bar shows the real logo instead of a generic glyph. The
+    // original glyph stays as the fallback for a provider with no asset.
+    iconComponent: Component {
+      Item {
+        Image {
+          id: brandMark
+          anchors.fill: parent
+          fillMode: Image.PreserveAspectFit
+          smooth: true
+          sourceSize.width: 64
+          sourceSize.height: 64
+          source: root.provider ? Qt.resolvedUrl("assets/" + root.provider.providerId + ".svg") : ""
+        }
+        Text {
+          anchors.centerIn: parent
+          visible: brandMark.status !== Image.Ready
+          text: "󱚣"
+          font.family: button.fontFamily
+          font.pixelSize: button.fontSize
+          color: button.foreground
+        }
+      }
+    }
     active: root.alarming
     onPressed: function(buttonCode) {
       if (buttonCode === Qt.RightButton) root.launchAgent()

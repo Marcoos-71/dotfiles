@@ -88,7 +88,7 @@ BarWidget {
     anchors.fill: parent
     bar: root.bar
     foreground: "#fab387"  // bar-colors: cluster colour, re-applied by omarchy-bar-colors
-    text: "󰅧"
+    text: "󰉍"
     slotSize: Style.bar.statusSlot
     tooltipText: "Descargas"
     onPressed: root.togglePanel()

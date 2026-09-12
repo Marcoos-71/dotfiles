@@ -44,7 +44,7 @@ BarWidget {
   }
 
   readonly property bool healthy: snapperReadable && uncoveredCount === 0
-  readonly property string icon: !snapperReadable ? "󰆓" : (healthy ? "󰆓" : "󰆓")
+  readonly property string icon: !snapperReadable ? "󰁯" : (healthy ? "󰁯" : "󰁯")
 
   function startOfDay(date) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() / 1000

@@ -44,13 +44,13 @@ CLUSTERS = {
 # Widgets that stay neutral on purpose: the tray shows other apps' own icons,
 # and the indicators are alerts whose color already means something.
 WIDGETS = {
-    "omarchy.network": "system",
-    "omarchy.bluetooth": "system",
-    "omarchy.audio": "system",
-    "omarchy.monitor": "system",
-    "omarchy.power": "system",
-    "marcos.netspeed": "system",
-    "marcos.sysmon": "system",
+    "omarchy.network": "devices",
+    "omarchy.bluetooth": "devices",
+    "omarchy.audio": "devices",
+    "omarchy.monitor": "devices",
+    "omarchy.power": "devices",
+    "marcos.netspeed": "resources",
+    "marcos.sysmon": "resources",
     "omarchy.weather": "context",
     "omarchy.media": "context",
     "omarchy.system-update": "context",
@@ -74,6 +74,46 @@ BUTTONS = ("BarIconButton {", "WidgetButton {")
 
 def expression(cluster: str) -> str:
     return f'"{CLUSTERS[cluster]}"'
+
+
+AGENTS_ICON = """
+    // The plugin ships each provider's mark, and Claude's carries its own
+    // orange, so the bar shows the real logo instead of a generic glyph. The
+    // original glyph stays as the fallback for a provider with no asset.
+    iconComponent: Component {
+      Item {
+        Image {
+          id: brandMark
+          anchors.fill: parent
+          fillMode: Image.PreserveAspectFit
+          smooth: true
+          sourceSize.width: 64
+          sourceSize.height: 64
+          source: root.provider ? Qt.resolvedUrl("assets/" + root.provider.providerId + ".svg") : ""
+        }
+        Text {
+          anchors.centerIn: parent
+          visible: brandMark.status !== Image.Ready
+          text: "󱚣"
+          font.family: button.fontFamily
+          font.pixelSize: button.fontSize
+          color: button.foreground
+        }
+      }
+    }"""
+
+
+def patch_agents_icon(text: str) -> str:
+    """Swap the agents glyph for the active provider's brand mark."""
+    # Checked against our own id: the panel already uses iconComponent for its
+    # hero mark, so the generic name would make this a no-op.
+    if "id: brandMark" in text:
+        return text
+    anchor = '    text: "󱚣"\n    active: root.alarming'
+    return text.replace(anchor, '    text: "󱚣"' + AGENTS_ICON + '\n    active: root.alarming', 1)
+
+
+EXTRA = {"omarchy.agents": patch_agents_icon}
 
 
 def run(cmd: list[str], check: bool = False) -> subprocess.CompletedProcess:
@@ -206,7 +246,16 @@ def main() -> int:
         if path is None:
             report.append((widget, cluster, "no bar widget entry point"))
             continue
-        report.append((widget, cluster, patch(path, cluster)))
+        status = patch(path, cluster)
+        # Per-widget touches beyond colour, re-applied on every run so a
+        # re-clone from upstream does not quietly drop them.
+        if widget in EXTRA:
+            before = path.read_text()
+            after = EXTRA[widget](before)
+            if after != before:
+                path.write_text(after)
+                status += " + icon"
+        report.append((widget, cluster, status))
 
     run(["omarchy-shell", "shell", "rescanPlugins"])
 
