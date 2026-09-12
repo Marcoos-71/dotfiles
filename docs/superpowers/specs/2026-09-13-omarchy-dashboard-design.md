@@ -37,15 +37,23 @@ A headless singleton holding every system reader currently duplicated across
 bar widgets: `/proc/stat`, `/proc/meminfo`, the hwmon temperature inputs, and
 the `rx_bytes`/`tx_bytes` counters of the default-route interface.
 
-This is the load-bearing decision. Today `marcos.sysmon` and `marcos.netspeed`
-each run their own timer and their own set of `FileView`s. After this change
-there is one timer and one set of readers, and both widgets become views over
-the service. The dashboard is therefore not a new cost — it arrives alongside a
-net reduction.
+Today `marcos.sysmon` ticks every 5s and `marcos.netspeed` every 2s, each with
+its own `FileView`s. The service keeps **both cadences** — 2s for the network
+counters, 5s for CPU, memory and temperatures — because they were chosen for
+good reasons and collapsing them to one rate would either read `/proc/stat`
+more than needed or make the network graph lumpy.
 
-The service also keeps a 60-sample ring buffer per metric (~2 minutes at the
-existing 2s tick) so the dashboard can draw sparklines. Sixty floats per metric
-is not a cost worth optimising.
+So this does not remove a timer, and the earlier claim that it would was wrong:
+the tick count and the file-read count stay exactly as they are today. What it
+buys is that the dashboard adds **no third set of readers**, and that the bar
+and the dashboard cannot disagree about the same number. Without it, opening the
+dashboard would mean a second `/proc/stat` reader running alongside the widget's.
+
+The service also keeps a 60-sample ring buffer per metric — two minutes of
+network at 2s, five minutes of CPU at 5s — so the dashboard can draw sparklines.
+Sixty floats per metric is not a cost worth optimising, and the buffer fills
+whether or not the panel is open, which is what makes a sparkline meaningful the
+instant it appears.
 
 Cross-plugin access is supported first-class: `shell.ensureService(id)`
 instantiates a service lazily and `shell.serviceFor(id)` returns it. An overlay
@@ -65,6 +73,11 @@ edges on `WlrLayer.Overlay` and `WlrKeyboardFocus.Exclusive`.
 
 Prints today's events as JSON. Run once when the panel opens; never polled.
 
+Two more one-shot reads happen on open for the same reason — they need a
+subprocess and so cannot be `FileView`s: free space on `/` (`df`) and the
+snapshot list (`snapper --jsonout list`). Three short processes per open,
+roughly 50 ms, and zero while the panel is closed.
+
 `vdirsyncer` syncs Google Calendar into local `.ics` files on a systemd timer;
 `khal` queries them. Recurrence is the reason not to parse ICS by hand — RRULE,
 EXDATE and timezone handling are where every hand-rolled parser is wrong, and
@@ -78,7 +91,7 @@ command that prints JSON, the same shape as `omarchy-qbittorrent`.
 
 | Block | Source | When it costs |
 |---|---|---|
-| CPU / RAM / temp / network | `marcos.metrics` | already paid today, and less |
+| CPU / RAM / temp / network | `marcos.metrics` | already paid today, unchanged |
 | Missed notifications | `~/.local/state/omarchy/notifications/history/*.json` | only while open |
 | Reminders | `marcos.reminders` | already paid |
 | Snapshots / downloads | existing widget readers | already paid |
@@ -97,8 +110,11 @@ resource at 1080px, and a narrow card strangles the content while making the
 side margins conspicuous.
 
 Header: time, date, uptime, and one overall status dot. The dot is green
-unless something needs attention: a temperature in the warn or hot tier, a
-pacman transaction without a snapshot, or the root filesystem below 10% free.
+unless something needs attention: a temperature in the warn or hot tier, or the
+root filesystem below 10% free. Snapshot coverage was considered and left out —
+deciding that a pacman transaction went without a snapshot needs the pacman.log
+parsing `marcos.snapper` already owns, and a second copy of that rule would be a
+second source of truth.
 It exists so the header answers "is anything wrong" before the eye reaches the
 third column. Below it three columns —
 HOY (agenda, then reminders), QUÉ ME PERDÍ (notifications, then what is
@@ -149,4 +165,4 @@ is the regression to watch.
 1. Clean shell start: `journalctl --user -b --since "10 seconds ago" | grep -iE "omarchy-shell.*(error|warn)"` empty.
 2. `grim -o DP-3` plus a `magick` crop of the card, read as an image — small screenshots lie about colour, so sample pixels for colour judgements.
 3. Disable `marcos.metrics` on purpose and confirm the bar still works.
-4. CPU and RSS before and after; expected equal or better, given the timer removed.
+4. CPU and RSS before and after; expected unchanged at idle, since no tick was added or removed.
