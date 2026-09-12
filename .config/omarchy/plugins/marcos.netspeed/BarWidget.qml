@@ -129,7 +129,7 @@ BarWidget {
     text: root.vertical ? root.fmtRate(root.rxRate) : root.label
     // Only the transfer state overrides the color; the idle state inherits the
     // bar's own foreground, which adapts to the wallpaper on a transparent bar.
-    foreground: root.transferring ? Color.accent : Qt.hsva(((Color.accent.hsvHue * 360 - 28 + 360) % 360) / 360, Math.min(1, Color.accent.hsvSaturation + 0.05), Color.accent.hsvValue, 1)
+    foreground: root.transferring ? Color.accent : (Qt.hsva(((Color.accent.hsvHue * 360 + -28 + 360) % 360) / 360, Math.min(1, Math.max(0, Color.accent.hsvSaturation + 0.05)), Math.min(1, Math.max(0, Color.accent.hsvValue + 0.0)), 1))
     fontSize: Style.font.caption
     horizontalMargin: 8
     tooltipText: root.iface === ""

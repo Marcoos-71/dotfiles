@@ -164,6 +164,7 @@ BarWidget {
     id: button
     anchors.fill: parent
     bar: root.bar
+    foreground: Qt.hsva(((Color.accent.hsvHue * 360 + 30 + 360) % 360) / 360, Math.min(1, Math.max(0, Color.accent.hsvSaturation + -0.05)), Math.min(1, Math.max(0, Color.accent.hsvValue + 0.0)), 1)  // bar-colors: cluster colour, re-applied by omarchy-bar-colors
     text: root.vertical ? "" : root.displayText
     labelVisible: !root.vertical
     hasVisualContent: root.vertical ? root.verticalLines.length > 0 : text !== ""

@@ -128,8 +128,15 @@ def patch(path: Path, expr: str) -> str:
     start = next((i for i, l in enumerate(lines) if any(b in l for b in BUTTONS)), None)
     if start is None:
         return "skipped: no bar button found"
-    anchor = next((i for i in range(start, min(start + 15, len(lines)))
-                   if re.match(r"\s*bar:\s*root\.bar\s*$", lines[i])), None)
+    block = range(start, min(start + 25, len(lines)))
+
+    # A colour written by hand usually carries state (focused workspace, alert
+    # tint). Adding a second `foreground` would be a duplicate property and the
+    # widget would refuse to load, so leave it and say so.
+    if any(re.match(r"\s*foreground:", lines[i]) for i in block):
+        return "left alone: has its own colour"
+
+    anchor = next((i for i in block if re.match(r"\s*bar:\s*root\.bar\s*$", lines[i])), None)
     if anchor is None:
         return "skipped: no anchor after bar button"
     indent = re.match(r"\s*", lines[anchor]).group(0)
