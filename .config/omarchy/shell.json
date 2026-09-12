@@ -13,13 +13,13 @@
           "verticalFormat": "HH\n—\nmm"
         },
         {
-          "id": "marcos.keyboard-layout"
+          "id": "omarchy.keyboard-layout"
         },
         {
-          "id": "marcos.weather"
+          "id": "omarchy.weather"
         },
         {
-          "id": "marcos.system-update"
+          "id": "omarchy.system-update"
         }
       ],
       "left": [
@@ -35,22 +35,22 @@
           "id": "omarchy.tray"
         },
         {
-          "id": "marcos.agents"
+          "id": "omarchy.agents"
         },
         {
-          "id": "marcos.bluetooth"
+          "id": "omarchy.bluetooth"
         },
         {
-          "id": "marcos.network"
+          "id": "omarchy.network"
         },
         {
-          "id": "marcos.audio"
+          "id": "omarchy.audio"
         },
         {
-          "id": "marcos.monitor"
+          "id": "omarchy.monitor"
         },
         {
-          "id": "marcos.power"
+          "id": "omarchy.power"
         }
       ]
     },
