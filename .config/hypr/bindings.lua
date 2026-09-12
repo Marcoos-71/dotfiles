@@ -52,6 +52,7 @@ o.bind("SUPER + SHIFT + SLASH", "Passwords", { launch = "bitwarden" }) -- defaul
 o.bind("SUPER + SHIFT + V", "VS Code", { focus = "code", launch = "code" })
 o.bind("SUPER + SHIFT + L", "Git", { tui = "lazygit" })
 o.bind("SUPER + SHIFT + I", "Odysseus", { webapp = "http://localhost:7000" })
+o.bind("SUPER + SHIFT + R", "Recordatorio", "omarchy-reminder -i")
 
 -- Navegación de workspaces con Home/Prior/Next
 o.bind("Home", "Workspace anterior", hl.dsp.focus({ workspace = "e-1" }))

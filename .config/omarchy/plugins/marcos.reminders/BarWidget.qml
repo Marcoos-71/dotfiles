@@ -109,7 +109,7 @@ BarWidget {
   // reminder gets noticed (its timer disappears without touching the folder).
   Timer {
     interval: 1000
-    running: root.count > 0
+    running: root.nextReminder !== null
     repeat: true
     onTriggered: {
       root.nowSec = Date.now() / 1000
@@ -124,12 +124,12 @@ BarWidget {
     text: root.label
     labelVisible: !root.vertical
     foreground: root.bar ? root.bar.barForeground : Color.foreground
-    opacity: root.count > 0 ? 1 : 0.45
+    opacity: root.nextReminder ? 1 : 0.45
     fontSize: Style.font.caption
     horizontalMargin: 8
-    tooltipText: root.count > 0 ? "Ver recordatorios" : "Sin recordatorios · clic para añadir"
+    tooltipText: root.nextReminder ? "Ver recordatorios" : "Sin recordatorios · clic para añadir"
     onPressed: function() {
-      Quickshell.execDetached(root.count > 0
+      Quickshell.execDetached(root.nextReminder
         ? ["omarchy-reminder", "show"]
         : ["omarchy-reminder", "-i"])
     }
