@@ -1,0 +1,72 @@
+{
+  "bar": {
+    "centerAnchor": "omarchy.clock",
+    "layout": {
+      "center": [
+        {
+          "id": "omarchy.indicators"
+        },
+        {
+          "format": "dddd HH:mm",
+          "formatAlt": "d MMMM 'W'ww yyyy",
+          "id": "marcos.clock",
+          "verticalFormat": "HH\n—\nmm"
+        },
+        {
+          "id": "marcos.keyboard-layout"
+        },
+        {
+          "id": "marcos.weather"
+        },
+        {
+          "id": "marcos.system-update"
+        }
+      ],
+      "left": [
+        {
+          "id": "marcos.menu"
+        },
+        {
+          "id": "marcos.workspaces"
+        }
+      ],
+      "right": [
+        {
+          "id": "omarchy.tray"
+        },
+        {
+          "id": "marcos.agents"
+        },
+        {
+          "id": "marcos.bluetooth"
+        },
+        {
+          "id": "marcos.network"
+        },
+        {
+          "id": "marcos.audio"
+        },
+        {
+          "id": "marcos.monitor"
+        },
+        {
+          "id": "marcos.power"
+        }
+      ]
+    },
+    "position": "top",
+    "transparent": true
+  },
+  "idle": {
+    "lock": 5400,
+    "screensaver": 5400
+  },
+  "plugins": [],
+  "version": 1,
+  "disabledPlugins": [
+    "omarchy.menu"
+  ],
+  "cloneSourceRestores": [
+    "marcos.menu"
+  ]
+}
