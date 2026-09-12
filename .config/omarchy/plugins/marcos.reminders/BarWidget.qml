@@ -24,7 +24,10 @@ BarWidget {
   // Seconds since epoch, refreshed by the local tick so the countdown recomputes.
   property real nowSec: Date.now() / 1000
 
-  readonly property var nextReminder: count > 0 ? reminders[0] : null
+  // Driven by the array rather than by `count`: the two are set from the same
+  // payload, but a binding that trusts the counter blows up on any payload
+  // where they disagree.
+  readonly property var nextReminder: reminders && reminders.length > 0 ? reminders[0] : null
   readonly property real nextAt: nextReminder ? Number(nextReminder.at) || 0 : 0
   readonly property int remainingSec: nextAt > 0 ? Math.max(0, Math.round(nextAt - nowSec)) : 0
 
