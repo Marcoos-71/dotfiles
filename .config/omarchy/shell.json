@@ -50,7 +50,13 @@
           "id": "omarchy.audio"
         },
         {
+          "id": "marcos.netspeed"
+        },
+        {
           "id": "marcos.sysmon"
+        },
+        {
+          "id": "marcos.cleanup"
         },
         {
           "id": "omarchy.monitor"

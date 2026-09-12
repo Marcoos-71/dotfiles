@@ -40,7 +40,7 @@ BarWidget {
     if (cpuTemp < 0 && gpuTemp < 0) return ""
     var cpu = cpuTemp < 0 ? "--" : cpuTemp + "°"
     var gpu = gpuTemp < 0 ? "--" : gpuTemp + "°"
-    return "  󰜏 " + cpu + "/" + gpu
+    return "  󰔏 " + cpu + "/" + gpu
   }
 
   readonly property string label: root.vertical
