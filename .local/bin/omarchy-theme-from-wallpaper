@@ -118,11 +118,12 @@ def derive(colors: list[tuple[int, int, int]]) -> dict[str, str]:
     foreground = lightest if luminance(lightest) >= 0.78 else mix(lightest, (255, 255, 255), 0.72)
     foreground = tuple(foreground)
 
-    # The accent is the most colorful thing on screen that is not near-black.
-    candidates = [c for c in colors if luminance(c) > 0.22] or colors
-    accent = max(candidates, key=lambda c: saturation(c) * (0.4 + luminance(c)))
-    if saturation(accent) < 0.15:
-        accent = tuple(mix(accent, foreground, 0.5))
+    # The accent is the most colorful thing on screen, then forced into a band
+    # where it stays visible: a drab or very dark wallpaper would otherwise
+    # yield an accent that disappears against the background it sits on.
+    candidates = [c for c in colors if 0.2 < luminance(c) < 0.9] or colors
+    accent = max(candidates, key=saturation)
+    accent = boost(accent, min_value=0.62, min_saturation=0.35)
 
     bg = tuple(round(c) for c in background)
     fg = tuple(round(c) for c in foreground)
