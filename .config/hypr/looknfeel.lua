@@ -55,3 +55,12 @@ hl.config({
 --     column_width = 0.97,
 --   },
 -- })
+
+-- Redondeo de esquinas. La barra hereda este valor para sus tooltips, popups
+-- y el pill de hover (Style.cornerRadius lo lee de aqui), asi que subirlo
+-- suaviza tambien el shell, no solo las ventanas.
+hl.config({
+  decoration = {
+    rounding = 8,
+  },
+})

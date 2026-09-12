@@ -1,0 +1,195 @@
+#!/usr/bin/env python3
+"""Apply the per-cluster bar colors, re-cloning stock widgets from upstream.
+
+Omarchy's own bar widgets take their color from one global value, and nothing
+in shell.json can override it per widget, so tinting a group means editing the
+widget's code. That code belongs to the package, so the edit has to live on a
+copy under ~/.config/omarchy/plugins -- a fork.
+
+The cost of a fork is that it freezes upstream's code. This script removes that
+cost: it re-clones each stock widget fresh and re-injects a single line, so
+after an `omarchy update` one run brings every fork back in sync with the new
+code while keeping the colors.
+
+The injected line is an expression, not a hex value: each cluster is a hue
+offset from the theme accent, so the colors stay harmonious and follow the
+wallpaper-derived palette on their own, with no palette file to keep in sync.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+PLUGINS = Path.home() / ".config/omarchy/plugins"
+DOTFILES_PLUGINS = Path.home() / "dotfiles/.config/omarchy/plugins"
+ENV = dict(os.environ, OMARCHY_PATH="/usr/share/omarchy")
+
+# hue offset in degrees, saturation delta, value delta
+CLUSTERS = {
+    "identity": (0, 0.00, 0.00),
+    "system": (-28, 0.05, 0.00),
+    "context": (30, -0.05, 0.00),
+    "tools": (58, -0.10, 0.00),
+}
+
+# Widgets that stay neutral on purpose: the tray shows other apps' own icons,
+# and the indicators are alerts whose color already means something.
+WIDGETS = {
+    "omarchy.network": "system",
+    "omarchy.bluetooth": "system",
+    "omarchy.audio": "system",
+    "omarchy.monitor": "system",
+    "omarchy.power": "system",
+    "marcos.netspeed": "system",
+    "marcos.sysmon": "system",
+    "omarchy.weather": "context",
+    "omarchy.media": "context",
+    "omarchy.system-update": "context",
+    "omarchy.keyboard-layout": "context",
+    "marcos.clock": "context",
+    "marcos.reminders": "context",
+    "omarchy.agents": "tools",
+    "marcos.snapper": "tools",
+    "marcos.cleanup": "tools",
+    "marcos.downloads": "tools",
+    "marcos.vault-capture": "tools",
+    "marcos.menu": "identity",
+    "marcos.workspaces": "identity",
+}
+
+# The neutral base every hand-written widget here uses, so a re-run replaces
+# the previous colour instead of stacking another one.
+NEUTRAL = "root.bar ? root.bar.barForeground : Color.foreground"
+BUTTONS = ("BarIconButton {", "WidgetButton {")
+
+
+def expression(cluster: str) -> str:
+    hue, sat, val = CLUSTERS[cluster]
+    if cluster == "identity":
+        return "Color.accent"
+    sat_expr = f"Math.min(1, Math.max(0, Color.accent.hsvSaturation + {sat}))"
+    val_expr = f"Math.min(1, Math.max(0, Color.accent.hsvValue + {val}))"
+    return (f"Qt.hsva(((Color.accent.hsvHue * 360 + {hue} + 360) % 360) / 360, "
+            f"{sat_expr}, {val_expr}, 1)")
+
+
+def run(cmd: list[str], check: bool = False) -> subprocess.CompletedProcess:
+    return subprocess.run(cmd, env=ENV, capture_output=True, text=True, check=check)
+
+
+def plugin_catalog() -> dict:
+    out = run(["omarchy", "plugin", "list", "--json"]).stdout
+    try:
+        return {p["id"]: p for p in json.loads(out)}
+    except json.JSONDecodeError:
+        return {}
+
+
+def entry_file(plugin_dir: Path) -> Path | None:
+    manifest = plugin_dir / "manifest.json"
+    if not manifest.is_file():
+        return None
+    data = json.loads(manifest.read_text())
+    name = (data.get("entryPoints") or {}).get("barWidget")
+    if not name:
+        return None
+    path = plugin_dir / name
+    return path if path.is_file() else None
+
+
+def patch(path: Path, expr: str) -> str:
+    """Set the widget's base colour. Returns what was done, for the report."""
+    text = path.read_text()
+
+    if "import qs.Commons" not in text:
+        text = text.replace("import qs.Ui", "import qs.Commons\nimport qs.Ui", 1)
+
+    marker = "// bar-colors:"
+    # Re-run: swap the expression we injected last time.
+    if marker in text:
+        text = re.sub(rf"(\n\s*foreground: ).*?({re.escape(marker)}.*)", rf"\1{expr}  \2", text, count=1)
+        path.write_text(text)
+        return "updated"
+
+    # Hand-written widget: keep its state logic, replace only the neutral base.
+    if NEUTRAL in text:
+        text = text.replace(NEUTRAL, expr, 1)
+        path.write_text(text)
+        return "rebased"
+
+    # Stock widget: add the property to its bar button.
+    lines = text.splitlines()
+    start = next((i for i, l in enumerate(lines) if any(b in l for b in BUTTONS)), None)
+    if start is None:
+        return "skipped: no bar button found"
+    anchor = next((i for i in range(start, min(start + 15, len(lines)))
+                   if re.match(r"\s*bar:\s*root\.bar\s*$", lines[i])), None)
+    if anchor is None:
+        return "skipped: no anchor after bar button"
+    indent = re.match(r"\s*", lines[anchor]).group(0)
+    lines.insert(anchor + 1, f"{indent}foreground: {expr}  {marker} cluster colour, re-applied by omarchy-bar-colors")
+    path.write_text("\n".join(lines) + "\n")
+    return "patched"
+
+
+def ensure_clone(source_id: str) -> Path | None:
+    """Re-clone a stock widget so the patch lands on current upstream code."""
+    clone_id = f"{os.environ.get('USER', 'marcos')}.{source_id.split('.', 1)[1]}"
+    clone_dir = PLUGINS / clone_id
+    if clone_dir.exists() or clone_dir.is_symlink():
+        run(["omarchy", "plugin", "remove", clone_id, "--yes"])
+        shutil.rmtree(DOTFILES_PLUGINS / clone_id, ignore_errors=True)
+        if clone_dir.is_symlink() or clone_dir.exists():
+            clone_dir.unlink(missing_ok=True)
+    result = run(["omarchy", "plugin", "clone", source_id])
+    if result.returncode != 0:
+        return None
+    # Clones land in ~/.config; move into dotfiles and symlink back, matching
+    # how every other plugin here is tracked.
+    target = DOTFILES_PLUGINS / clone_id
+    shutil.move(str(clone_dir), str(target))
+    clone_dir.symlink_to(target)
+    return target
+
+
+def main() -> int:
+    report = []
+    for widget, cluster in WIDGETS.items():
+        expr = expression(cluster)
+        if widget.startswith("omarchy."):
+            directory = ensure_clone(widget)
+            if directory is None:
+                report.append((widget, cluster, "failed to clone"))
+                continue
+        else:
+            directory = DOTFILES_PLUGINS / widget
+            if not directory.is_dir():
+                report.append((widget, cluster, "not installed"))
+                continue
+
+        path = entry_file(directory)
+        if path is None:
+            report.append((widget, cluster, "no bar widget entry point"))
+            continue
+        report.append((widget, cluster, patch(path, expr)))
+
+    run(["omarchy-shell", "shell", "rescanPlugins"])
+
+    width = max(len(w) for w, _, _ in report)
+    for widget, cluster, status in report:
+        print(f"{widget:<{width}}  {cluster:<9} {status}")
+    failures = [r for r in report if r[2].startswith(("skipped", "failed", "no "))]
+    if failures:
+        print(f"\n{len(failures)} widget(s) need attention: upstream shape probably changed.",
+              file=sys.stderr)
+    return 1 if failures else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
