@@ -127,6 +127,13 @@ def patch(path: Path, expr: str) -> str:
     lines = text.splitlines()
     start = next((i for i, l in enumerate(lines) if any(b in l for b in BUTTONS)), None)
     if start is None:
+        # A few widgets (media) draw their own Text instead of using a button.
+        # They still read the bar's colour, so swapping that token tints them
+        # while leaving their own state logic (dimmed when paused) intact.
+        if "root.bar.barForeground" in text:
+            text = text.replace("root.bar.barForeground", f"({expr})")
+            path.write_text(text)
+            return "tinted via bar foreground"
         return "skipped: no bar button found"
     block = range(start, min(start + 25, len(lines)))
 
