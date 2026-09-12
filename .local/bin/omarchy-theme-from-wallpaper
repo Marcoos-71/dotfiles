@@ -203,6 +203,18 @@ def main() -> int:
     subprocess.run(["omarchy", "theme", "refresh"], env=env, check=False,
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
+    # Refresh rewrites the files but does not tell the running shell, which
+    # reads its palette once at startup. This is the same IPC `theme set` uses,
+    # minus the background handling that would retrigger this script.
+    def payload(path: Path) -> str:
+        return base64.b64encode(path.read_bytes()).decode() if path.is_file() else ""
+
+    subprocess.run(
+        ["omarchy-shell", "shell", "applyTheme",
+         payload(STATE / "theme/colors.toml"), payload(STATE / "theme/shell.toml")],
+        env=env, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+    )
+
     print(f"{theme_name}: recolored from {wallpaper.name} (accent {derived['accent']})")
     return 0
 
