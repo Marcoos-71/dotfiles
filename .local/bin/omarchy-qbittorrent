@@ -25,17 +25,7 @@ unavailable() {
 
 [[ -f $SECRETS ]] || unavailable "no-credentials"
 
-username=""
-password=""
-while IFS='=' read -r key value; do
-  case "$key" in
-    username) username="$value" ;;
-    # The password may legitimately contain '=', so only the first one splits.
-    password) password="${value}" ;;
-  esac
-done < <(sed -E 's/^([a-z]+)=/\1\t/' "$SECRETS" | tr '\t' '=' )
-
-# Re-read preserving everything after the first '=' for the password.
+# Everything after the first '=' is the value: a password may contain '='.
 username=$(sed -n 's/^username=//p' "$SECRETS")
 password=$(sed -n 's/^password=//p' "$SECRETS")
 [[ -n $username && -n $password ]] || unavailable "bad-credentials"
