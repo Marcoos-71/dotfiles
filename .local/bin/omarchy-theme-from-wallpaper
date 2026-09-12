@@ -17,6 +17,7 @@ restores the stock palette.
 
 from __future__ import annotations
 
+import base64
 import os
 import re
 import shutil
@@ -180,7 +181,16 @@ def main() -> int:
     if stock_backup.exists():
         template = stock_backup.read_text()
     else:
-        source = target if target.exists() else (STATE / "theme/colors.toml")
+        # Prefer the packaged palette: the user copy may already be a previous
+        # run's output, and backing that up would lose the real original.
+        candidates = [
+            Path("/usr/share/omarchy/themes") / theme_name / "colors.toml",
+            STATE / "theme/colors.toml",
+            target,
+        ]
+        source = next((c for c in candidates if c.is_file()), None)
+        if source is None:
+            raise SystemExit(f"no palette to start from for theme '{theme_name}'")
         template = source.read_text()
         stock_backup.write_text(template)
 
