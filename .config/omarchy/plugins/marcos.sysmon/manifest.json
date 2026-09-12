@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "marcos.sysmon",
+  "name": "System monitor",
+  "version": "1.0.0",
+  "author": "marcos",
+  "description": "CPU, RAM and CPU/GPU temperatures read straight from procfs and sysfs",
+  "kinds": ["bar-widget"],
+  "entryPoints": { "barWidget": "BarWidget.qml" },
+  "barWidget": {
+    "displayName": "System monitor",
+    "description": "CPU, RAM and CPU/GPU temperatures",
+    "category": "System",
+    "allowMultiple": false
+  }
+}

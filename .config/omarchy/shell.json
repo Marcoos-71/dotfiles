@@ -19,6 +19,9 @@
           "id": "omarchy.weather"
         },
         {
+          "id": "omarchy.media"
+        },
+        {
           "id": "omarchy.system-update"
         }
       ],
