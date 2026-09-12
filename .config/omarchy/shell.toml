@@ -1,0 +1,11 @@
+# Machine-level overrides layered on top of whatever theme is active.
+# (Merged: [font] was already here, written by `omarchy display text size`.)
+
+[font]
+base-size = 12
+
+# A slightly opaque bar gives the icons contrast against bright or busy
+# wallpapers. The color itself still comes from the active theme, so this
+# survives theme changes.
+[bar]
+background-alpha = 0.85

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "marcos.reminders",
+  "name": "Reminders",
+  "version": "1.0.0",
+  "author": "marcos",
+  "description": "Pending omarchy reminders with a live countdown on the bar",
+  "kinds": ["bar-widget"],
+  "entryPoints": { "barWidget": "BarWidget.qml" },
+  "barWidget": {
+    "displayName": "Reminders",
+    "description": "Pending reminders with countdown",
+    "category": "System",
+    "allowMultiple": false
+  }
+}
