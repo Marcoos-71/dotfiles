@@ -1,0 +1,194 @@
+#!/usr/bin/env python3
+"""Recolor the active Omarchy theme from the current wallpaper.
+
+Only the neutral roles (backgrounds, foregrounds, accent, selection, muted) are
+derived from the image. The semantic hue keys a theme defines -- red, green,
+yellow and friends -- are left exactly as the theme shipped them, because a
+"red" that stops being red breaks every urgency cue in the shell.
+
+Any key the script does not recognise passes through untouched, so a theme with
+a different schema (Catppuccin's color0..color15 vs Nord's named keys) still
+comes out valid.
+
+Writes to ~/.config/omarchy/themes/<theme>/colors.toml, which Omarchy prefers
+over the packaged copy, so /usr/share is never touched and removing that file
+restores the stock palette.
+"""
+
+from __future__ import annotations
+
+import os
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+HOME = Path.home()
+STATE = HOME / ".local/state/omarchy/current"
+USER_THEMES = HOME / ".config/omarchy/themes"
+
+# Keys whose value should follow the wallpaper. Everything else is preserved.
+NEUTRAL_KEYS = {
+    "background",
+    "dark_background",
+    "darker_background",
+    "lighter_background",
+    "foreground",
+    "dark_foreground",
+    "light_foreground",
+    "bright_foreground",
+    "accent",
+    "selection",
+    "muted",
+    "cursor",
+    "selection_foreground",
+    "selection_background",
+}
+
+HEX = re.compile(r"#([0-9a-fA-F]{6})")
+ASSIGNMENT = re.compile(r'^(\s*)([A-Za-z0-9_-]+)(\s*=\s*)"?(#[0-9a-fA-F]{6})"?(.*)$')
+
+
+def run(cmd: list[str]) -> str:
+    return subprocess.run(cmd, capture_output=True, text=True, check=True).stdout
+
+
+def to_rgb(value: str) -> tuple[int, int, int]:
+    value = value.lstrip("#")
+    return int(value[0:2], 16), int(value[2:4], 16), int(value[4:6], 16)
+
+
+def to_hex(rgb: tuple[float, float, float]) -> str:
+    return "#{:02x}{:02x}{:02x}".format(*(max(0, min(255, round(c))) for c in rgb))
+
+
+def luminance(rgb: tuple[int, int, int]) -> float:
+    r, g, b = (c / 255 for c in rgb)
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def saturation(rgb: tuple[int, int, int]) -> float:
+    r, g, b = (c / 255 for c in rgb)
+    high, low = max(r, g, b), min(r, g, b)
+    if high == 0:
+        return 0.0
+    return (high - low) / high
+
+
+def mix(a: tuple[int, int, int], b: tuple[int, int, int], amount: float) -> tuple[float, float, float]:
+    return tuple(a[i] + (b[i] - a[i]) * amount for i in range(3))
+
+
+def palette(image: Path, count: int = 8) -> list[tuple[int, int, int]]:
+    """Dominant colors, most common first."""
+    out = run([
+        "magick", str(image),
+        "-resize", "200x200^",
+        "-colors", str(count),
+        "-format", "%c",
+        "histogram:info:",
+    ])
+    found: list[tuple[int, tuple[int, int, int]]] = []
+    for line in out.splitlines():
+        match = HEX.search(line)
+        if not match:
+            continue
+        weight = line.strip().split(":")[0]
+        try:
+            found.append((int(weight), to_rgb(match.group(1))))
+        except ValueError:
+            continue
+    found.sort(key=lambda item: item[0], reverse=True)
+    return [rgb for _, rgb in found]
+
+
+def derive(colors: list[tuple[int, int, int]]) -> dict[str, str]:
+    if not colors:
+        raise SystemExit("no colors extracted from wallpaper")
+
+    by_light = sorted(colors, key=luminance)
+    darkest = by_light[0]
+    lightest = by_light[-1]
+
+    # A wallpaper can be entirely mid-tone, so the extremes are pushed until the
+    # pair is actually readable rather than trusted as-is.
+    background = darkest if luminance(darkest) <= 0.18 else mix(darkest, (0, 0, 0), 0.62)
+    background = tuple(background)
+    foreground = lightest if luminance(lightest) >= 0.78 else mix(lightest, (255, 255, 255), 0.72)
+    foreground = tuple(foreground)
+
+    # The accent is the most colorful thing on screen that is not near-black.
+    candidates = [c for c in colors if luminance(c) > 0.22] or colors
+    accent = max(candidates, key=lambda c: saturation(c) * (0.4 + luminance(c)))
+    if saturation(accent) < 0.15:
+        accent = tuple(mix(accent, foreground, 0.5))
+
+    bg = tuple(round(c) for c in background)
+    fg = tuple(round(c) for c in foreground)
+
+    return {
+        "background": to_hex(bg),
+        "dark_background": to_hex(mix(bg, (0, 0, 0), 0.35)),
+        "darker_background": to_hex(mix(bg, (0, 0, 0), 0.55)),
+        "lighter_background": to_hex(mix(bg, fg, 0.12)),
+        "foreground": to_hex(fg),
+        "bright_foreground": to_hex(fg),
+        "light_foreground": to_hex(mix(fg, bg, 0.2)),
+        "dark_foreground": to_hex(mix(fg, bg, 0.55)),
+        "accent": to_hex(accent),
+        "selection": to_hex(mix(bg, accent, 0.35)),
+        "muted": to_hex(mix(bg, fg, 0.45)),
+        "cursor": to_hex(fg),
+        "selection_foreground": to_hex(bg),
+        "selection_background": to_hex(accent),
+    }
+
+
+def main() -> int:
+    theme_name = (STATE / "theme.name").read_text().strip()
+    wallpaper = (STATE / "background").resolve()
+    if not wallpaper.is_file():
+        raise SystemExit(f"wallpaper not found: {wallpaper}")
+
+    target_dir = USER_THEMES / theme_name
+    target = target_dir / "colors.toml"
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    # The stock palette is the template: it defines which keys exist and keeps
+    # the hue keys. Kept aside on first run so the theme can be restored.
+    stock_backup = target_dir / "colors.toml.stock"
+    if stock_backup.exists():
+        template = stock_backup.read_text()
+    else:
+        source = target if target.exists() else (STATE / "theme/colors.toml")
+        template = source.read_text()
+        stock_backup.write_text(template)
+
+    derived = derive(palette(wallpaper))
+
+    lines = []
+    for line in template.splitlines():
+        match = ASSIGNMENT.match(line)
+        if match and match.group(2) in NEUTRAL_KEYS and match.group(2) in derived:
+            indent, key, sep, _, rest = match.groups()
+            lines.append(f'{indent}{key}{sep}"{derived[key]}"{rest}')
+        else:
+            lines.append(line)
+    target.write_text("\n".join(lines) + "\n")
+
+    # `theme refresh` re-renders every templated config from colors.toml.
+    # `theme set` is deliberately avoided: it also cycles the background, which
+    # would retrigger whatever called this script.
+    env = dict(os.environ, OMARCHY_PATH="/usr/share/omarchy")
+    subprocess.run(["omarchy", "theme", "refresh"], env=env, check=False,
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    print(f"{theme_name}: recolored from {wallpaper.name} (accent {derived['accent']})")
+    return 0
+
+
+if __name__ == "__main__":
+    if shutil.which("magick") is None:
+        raise SystemExit("ImageMagick (magick) is required")
+    sys.exit(main())

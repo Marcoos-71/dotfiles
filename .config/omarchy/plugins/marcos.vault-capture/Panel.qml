@@ -44,7 +44,7 @@ Panel {
     bar: root.bar
     open: root.opened
     focusTarget: field
-    contentWidth: panel.fittedContentWidth(Style.space(340))
+    contentWidth: panel.fittedContentWidth(Style.space(380))
     contentHeight: panel.fittedContentHeight(column.implicitHeight)
 
     PanelKeyCatcher {
@@ -131,6 +131,7 @@ Panel {
             Button {
               required property int index
               width: column.width
+              leftAlign: true
               text: String(recentNotes.get(index, "fileBaseName") || "")
               fontSize: Style.font.caption
               onClicked: {
