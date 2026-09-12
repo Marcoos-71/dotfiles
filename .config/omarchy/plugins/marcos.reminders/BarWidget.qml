@@ -42,7 +42,7 @@ BarWidget {
   }
 
   readonly property string label: {
-    if (count === 0) return "󰔛"
+    if (!nextReminder) return "󰔛"
     var text = "󰔛 " + (nextReminder.label || nextReminder.message || "Recordatorio")
       + " " + fmtRemaining(remainingSec)
     if (count > 1) text += "  +" + (count - 1)
