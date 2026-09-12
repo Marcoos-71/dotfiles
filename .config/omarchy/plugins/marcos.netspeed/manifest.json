@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "marcos.netspeed",
+  "name": "Network speed",
+  "version": "1.0.0",
+  "author": "marcos",
+  "description": "Live download/upload throughput, highlighted while a heavy transfer is running",
+  "kinds": ["bar-widget"],
+  "entryPoints": { "barWidget": "BarWidget.qml" },
+  "barWidget": {
+    "displayName": "Network speed",
+    "description": "Download/upload throughput",
+    "category": "Network",
+    "allowMultiple": false
+  }
+}
