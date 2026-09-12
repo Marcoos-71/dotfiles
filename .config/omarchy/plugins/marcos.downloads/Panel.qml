@@ -59,7 +59,8 @@ Panel {
 
         FolderListModel {
           id: files
-          folder: "file://" + (root.hostWidget ? root.hostWidget.downloadsDir : "")
+          // Guarded: an empty path makes the underlying watcher complain.
+          folder: root.hostWidget ? "file://" + root.hostWidget.downloadsDir : ""
           showDirs: false
           showDotAndDotDot: false
           sortField: FolderListModel.Time
