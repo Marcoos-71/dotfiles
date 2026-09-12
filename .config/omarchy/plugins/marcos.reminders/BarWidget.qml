@@ -123,7 +123,7 @@ BarWidget {
     bar: root.bar
     text: root.label
     labelVisible: !root.vertical
-    foreground: Qt.hsva(((Color.accent.hsvHue * 360 + 30 + 360) % 360) / 360, Math.min(1, Math.max(0, Color.accent.hsvSaturation + -0.05)), Math.min(1, Math.max(0, Color.accent.hsvValue + 0.0)), 1)
+    foreground: "#89b4fa"
     opacity: root.nextReminder ? 1 : 0.45
     fontSize: Style.font.caption
     horizontalMargin: 8

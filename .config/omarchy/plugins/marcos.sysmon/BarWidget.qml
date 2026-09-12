@@ -140,7 +140,7 @@ BarWidget {
     // Normal state deliberately leaves `foreground` to the bar: on a
     // transparent bar the shell samples the wallpaper (omarchy-bar-text-color)
     // to pick a readable text color, and hardcoding one fights that.
-    foreground: root.hot ? Color.urgent : (root.warm ? warnColor.value : (Qt.hsva(((Color.accent.hsvHue * 360 + -28 + 360) % 360) / 360, Math.min(1, Math.max(0, Color.accent.hsvSaturation + 0.05)), Math.min(1, Math.max(0, Color.accent.hsvValue + 0.0)), 1)))
+    foreground: root.hot ? Color.urgent : (root.warm ? warnColor.value : "#94e2d5")
     fontSize: Style.font.caption
     horizontalMargin: 8
     tooltipText: "CPU " + root.fmtPercent(root.cpuPercent)

@@ -35,7 +35,7 @@ BarWidget {
       textFormat: Text.PlainText
       anchors.verticalCenter: parent.verticalCenter
       text: root.playIcon
-      color: activePlayer && activePlayer.isPlaying ? (Qt.hsva(((Color.accent.hsvHue * 360 + 30 + 360) % 360) / 360, Math.min(1, Math.max(0, Color.accent.hsvSaturation + -0.05)), Math.min(1, Math.max(0, Color.accent.hsvValue + 0.0)), 1)) : Qt.darker((Qt.hsva(((Color.accent.hsvHue * 360 + 30 + 360) % 360) / 360, Math.min(1, Math.max(0, Color.accent.hsvSaturation + -0.05)), Math.min(1, Math.max(0, Color.accent.hsvValue + 0.0)), 1)), 1.5)
+      color: activePlayer && activePlayer.isPlaying ? ("#89b4fa") : Qt.darker(("#89b4fa"), 1.5)
       font.family: root.bar.fontFamily
       font.pixelSize: Style.font.body
       Behavior on color {
@@ -56,7 +56,7 @@ BarWidget {
         id: labelText
         textFormat: Text.PlainText
         text: root.title + (root.artist ? "  ·  " + root.artist : "")
-        color: (Qt.hsva(((Color.accent.hsvHue * 360 + 30 + 360) % 360) / 360, Math.min(1, Math.max(0, Color.accent.hsvSaturation + -0.05)), Math.min(1, Math.max(0, Color.accent.hsvValue + 0.0)), 1))
+        color: ("#89b4fa")
         font.family: root.bar.fontFamily
         font.pixelSize: Style.font.body
         anchors.verticalCenter: parent.verticalCenter

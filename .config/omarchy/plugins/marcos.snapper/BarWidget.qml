@@ -196,7 +196,7 @@ BarWidget {
     bar: root.bar
     text: root.icon
     slotSize: Style.bar.statusSlot
-    foreground: root.healthy ? (Qt.hsva(((Color.accent.hsvHue * 360 + 58 + 360) % 360) / 360, Math.min(1, Math.max(0, Color.accent.hsvSaturation + -0.1)), Math.min(1, Math.max(0, Color.accent.hsvValue + 0.0)), 1)) : Color.urgent
+    foreground: root.healthy ? "#fab387" : Color.urgent
     opacity: root.snapperReadable ? 1 : 0.45
     tooltipText: !root.snapperReadable
       ? "No se puede leer snapper"

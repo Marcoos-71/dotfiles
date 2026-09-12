@@ -277,7 +277,7 @@ Panel {
     id: button
     anchors.fill: parent
     bar: root.bar
-    foreground: Qt.hsva(((Color.accent.hsvHue * 360 + -28 + 360) % 360) / 360, Math.min(1, Math.max(0, Color.accent.hsvSaturation + 0.05)), Math.min(1, Math.max(0, Color.accent.hsvValue + 0.0)), 1)  // bar-colors: cluster colour, re-applied by omarchy-bar-colors
+    foreground: "#94e2d5"  // bar-colors: cluster colour, re-applied by omarchy-bar-colors
     text: root.showPercentage && !vertical
       ? Math.round(root.batteryFraction * 100) + "% " + root.batteryIcon()
       : root.batteryIcon()

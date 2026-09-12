@@ -15,7 +15,7 @@ BarWidget {
     bar: root.bar
     text: "\uf303"
     fontFamily: "JetBrainsMono Nerd Font"
-    foreground: Color.accent
+    foreground: "#cba6f7"
     horizontalMargin: 7.5
     onPressed: function(button) {
       if (!root.bar) return

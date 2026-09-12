@@ -56,7 +56,7 @@ BarWidget {
     id: button
     anchors.fill: parent
     bar: root.bar
-    foreground: Qt.hsva(((Color.accent.hsvHue * 360 + 30 + 360) % 360) / 360, Math.min(1, Math.max(0, Color.accent.hsvSaturation + -0.05)), Math.min(1, Math.max(0, Color.accent.hsvValue + 0.0)), 1)  // bar-colors: cluster colour, re-applied by omarchy-bar-colors
+    foreground: "#89b4fa"  // bar-colors: cluster colour, re-applied by omarchy-bar-colors
     text: "\uf021"
     slotSize: Style.bar.statusSlot
     fontSize: Style.font.caption
