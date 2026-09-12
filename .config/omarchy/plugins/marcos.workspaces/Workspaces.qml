@@ -59,7 +59,7 @@ BarWidget {
         readonly property bool focused: Hyprland.focusedWorkspace !== null && Hyprland.focusedWorkspace.id === modelData
 
         bar: root.bar
-        foreground: "#cba6f7"
+        foreground: focused ? Color.accent : Color.foreground
         text: focused ? "\uDB85\uDCFB" : (modelData === 10 ? "0" : String(modelData))
         opacity: occupied || focused ? 1 : 0.5
         horizontalMargin: 6
