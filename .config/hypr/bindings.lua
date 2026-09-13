@@ -62,3 +62,6 @@ o.bind("Next", "Mover ventana al workspace siguiente", hl.dsp.window.move({ work
 -- SUPER CTRL W (antes "Toggle Waybar") queda pendiente del rediseño de la
 -- barra con Quickshell. Por ahora esa tecla sigue siendo el default nuevo
 -- (Network) — no la toco hasta diseñar la barra.
+
+-- Dashboard: resumen del día, lo que me perdí y estado de la máquina
+o.bind("SUPER + D", "Dashboard", "omarchy-shell shell toggle marcos.dashboard '{}'")

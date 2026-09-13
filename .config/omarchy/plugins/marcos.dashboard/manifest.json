@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "marcos.dashboard",
+  "name": "Dashboard",
+  "version": "1.0.0",
+  "author": "marcos",
+  "description": "Glanceable overview: today, what was missed, and the machine",
+  "kinds": ["overlay"],
+  "keepLoaded": false,
+  "entryPoints": { "overlay": "Dashboard.qml" }
+}
