@@ -4,3 +4,6 @@
 
 # pytest
 __pycache__/
+
+# brainstorming visual companion
+.superpowers/
