@@ -1,0 +1,88 @@
+#!/usr/bin/env python3
+"""Print today's calendar events as JSON for the Omarchy dashboard."""
+
+import json
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+SEPARATOR = "|"
+FORMAT = "{start-time}|{end-time}|{title}|{location}"
+
+SETUP_HINT = (
+    "khal not found. Install it and sync a calendar:\n"
+    "  sudo pacman -S --needed vdirsyncer khal\n"
+    "  vdirsyncer discover google && vdirsyncer sync\n"
+)
+
+
+CALENDAR_DIR = Path.home() / ".calendars"
+
+
+def last_sync():
+    try:
+        return int(CALENDAR_DIR.stat().st_mtime)
+    except OSError:
+        return None
+
+
+def emit(ok, events, reason=""):
+    payload = {"ok": ok, "reason": reason, "syncedAt": last_sync(), "events": events}
+    json.dump(payload, sys.stdout, ensure_ascii=False)
+    sys.stdout.write("\n")
+    return 0
+
+
+def parse_line(line):
+    # start and end are fixed-width-ish leading fields and location is the
+    # trailing one; everything between belongs to the title, pipes included.
+    head = line.split(SEPARATOR, 2)
+    if len(head) < 3:
+        return None
+    start, end, rest = head
+    title, _, location = rest.rpartition(SEPARATOR)
+    if title == "":
+        title, location = location, ""
+    start = start.strip()
+    return {
+        "start": start,
+        "end": end.strip(),
+        "title": title.strip(),
+        "location": location.strip(),
+        "allDay": start == "",
+    }
+
+
+def main():
+    if "--setup" in sys.argv:
+        sys.stderr.write(SETUP_HINT)
+        return 0
+
+    if shutil.which("khal") is None:
+        return emit(False, [], "khal is not installed - run omarchy-agenda --setup")
+
+    try:
+        result = subprocess.run(
+            ["khal", "--color=false", "list", "--day-format", "", "--format", FORMAT,
+             "today", "today"],
+            capture_output=True, text=True, timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError) as error:
+        return emit(False, [], f"khal failed: {error}")
+
+    if result.returncode != 0:
+        return emit(False, [], (result.stderr or "khal exited non-zero").strip())
+
+    events = []
+    for line in result.stdout.splitlines():
+        if not line.strip():
+            continue
+        event = parse_line(line)
+        if event and event["title"]:
+            events.append(event)
+    return emit(True, events)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

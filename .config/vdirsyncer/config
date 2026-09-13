@@ -1,0 +1,20 @@
+[general]
+status_path = "~/.local/state/vdirsyncer/status/"
+
+[pair google]
+a = "google_local"
+b = "google_remote"
+collections = ["from b"]
+conflict_resolution = "b wins"
+metadata = ["displayname", "color"]
+
+[storage google_local]
+type = "filesystem"
+path = "~/.calendars/"
+fileext = ".ics"
+
+[storage google_remote]
+type = "caldav"
+url = "https://apidata.googleusercontent.com/caldav/v2/"
+username.fetch = ["command", "sh", "-c", "sed -n 1p ~/.config/omarchy/secrets/google-calendar"]
+password.fetch = ["command", "sh", "-c", "sed -n 2p ~/.config/omarchy/secrets/google-calendar"]
