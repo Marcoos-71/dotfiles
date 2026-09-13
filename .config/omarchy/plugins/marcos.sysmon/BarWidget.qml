@@ -18,10 +18,31 @@ BarWidget {
   property string cpuTempPath: ""
   property string gpuTempPath: ""
 
-  property real cpuPercent: -1
-  property real memPercent: -1
-  property int cpuTemp: -1
-  property int gpuTemp: -1
+  // The bar is injected after construction, so resolve on change rather than
+  // on completion. A null service is the supported case: the widget's own
+  // readers stay and take over, which is what keeps a broken service from
+  // taking the bar down with it.
+  property var metrics: null
+
+  function resolveMetrics() {
+    if (root.bar && root.bar.shell && typeof root.bar.shell.ensureService === "function")
+      root.metrics = root.bar.shell.ensureService("marcos.metrics")
+  }
+
+  onBarChanged: resolveMetrics()
+  Component.onCompleted: resolveMetrics()
+
+  readonly property bool useService: root.metrics !== null
+
+  property real ownCpuPercent: -1
+  property real ownMemPercent: -1
+  property int ownCpuTemp: -1
+  property int ownGpuTemp: -1
+
+  readonly property real cpuPercent: useService ? metrics.cpuPercent : ownCpuPercent
+  readonly property real memPercent: useService ? metrics.memPercent : ownMemPercent
+  readonly property int cpuTemp: useService ? metrics.cpuTemp : ownCpuTemp
+  readonly property int gpuTemp: useService ? metrics.gpuTemp : ownGpuTemp
 
   // /proc/stat is cumulative since boot, so usage is the delta between two
   // readings; the first reading only establishes the baseline.
@@ -60,7 +81,7 @@ BarWidget {
     var busy = total - idle
 
     if (prevTotal >= 0 && total > prevTotal) {
-      cpuPercent = Math.max(0, Math.min(100, (busy - prevBusy) / (total - prevTotal) * 100))
+      ownCpuPercent = Math.max(0, Math.min(100, (busy - prevBusy) / (total - prevTotal) * 100))
     }
     prevBusy = busy
     prevTotal = total
@@ -75,19 +96,19 @@ BarWidget {
 
     var total = Number(totalMatch[1])
     var avail = Number(availMatch[1])
-    if (total > 0) memPercent = (1 - avail / total) * 100
+    if (total > 0) ownMemPercent = (1 - avail / total) * 100
   }
 
   function readTemps() {
     if (cpuTempPath !== "") {
       cpuTempFile.reload()
       var cpuRaw = Number(String(cpuTempFile.text() || "").trim())
-      cpuTemp = isFinite(cpuRaw) && cpuRaw > 0 ? Math.round(cpuRaw / 1000) : -1
+      ownCpuTemp = isFinite(cpuRaw) && cpuRaw > 0 ? Math.round(cpuRaw / 1000) : -1
     }
     if (gpuTempPath !== "") {
       gpuTempFile.reload()
       var gpuRaw = Number(String(gpuTempFile.text() || "").trim())
-      gpuTemp = isFinite(gpuRaw) && gpuRaw > 0 ? Math.round(gpuRaw / 1000) : -1
+      ownGpuTemp = isFinite(gpuRaw) && gpuRaw > 0 ? Math.round(gpuRaw / 1000) : -1
     }
   }
 
@@ -107,7 +128,7 @@ BarWidget {
 
   Process {
     id: resolveSensors
-    running: true
+    running: !root.useService
     command: ["sh", "-c", "for d in /sys/class/hwmon/hwmon*; do n=$(cat \"$d/name\" 2>/dev/null); for l in \"$d\"/temp*_label; do [ -e \"$l\" ] || continue; lb=$(cat \"$l\" 2>/dev/null); case \"$n/$lb\" in k10temp/Tctl|zenpower/Tdie|'coretemp/Package id 0') echo \"cpu ${l%_label}_input\";; amdgpu/edge) echo \"gpu ${l%_label}_input\";; esac; done; done"]
     stdout: StdioCollector {
       waitForEnd: true
@@ -126,7 +147,7 @@ BarWidget {
 
   Timer {
     interval: 5000
-    running: true
+    running: !root.useService
     repeat: true
     triggeredOnStart: true
     onTriggered: root.refresh()
