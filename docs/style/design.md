@@ -12,7 +12,7 @@ The return on this work is mostly forward-looking. It improves the dashboard now
 
 ## Scope
 
-**In scope:** the twenty `marcos.*` plugins and every surface built from here on.
+**In scope:** the twenty-two `marcos.*` plugins and every surface built from here on.
 
 **Out of scope, and not by choice:** two of the four things the user initially asked for turn out to belong to Omarchy, not to us.
 
@@ -37,7 +37,7 @@ Chosen from three animated alternatives shown side by side. The user picked the 
 
 | Token | Value | Used for |
 |---|---|---|
-| `instant` | 90ms | state changes: hover, press, colour swaps |
+| `instant` | 90ms | semantic state changes we own: `netspeed` going blue on traffic, `sysmon` going amber on heat |
 | `fast` | 150ms | transitions inside a surface that is already open |
 | `normal` | 260ms | opening and closing a surface |
 
@@ -53,7 +53,7 @@ The user picked medium blur over a flat scrim and over heavy blur.
 
 - Backdrop: `layerrule = blur` on our overlay layers only, with the scrim alpha dropped from the current 0.55 to 0.30. The point of the lighter scrim is that blur already does the separation work, so the veil no longer has to.
 - Enabling `decoration:blur:enabled` in Hyprland is safe here: there is currently no translucent window anywhere on this machine (no opacity rules, no terminal transparency, bar `transparent: false`), so the setting changes nothing until a layer opts in by name.
-- Three elevation levels: bar (no shadow), popup, overlay.
+- Three elevation levels: bar (no shadow), popup, overlay. The concrete offsets, blurs and alphas live in `style-tokens.toml`; this design fixes only that there are three and what each is for.
 
 **Must be calibrated on screen.** The 9px used in the browser mockup does not map one-to-one onto Hyprland's blur. The plan carries an explicit calibration step with candidate values judged on the real display.
 
@@ -83,7 +83,7 @@ Tokens reach the plugins as generated constants, not through a runtime service.
 
 **Known limitation:** a QML `.js` library cannot export easing curves, which are QML enums. Tokens therefore carry numbers only — durations, offsets, alphas, blur radii, sizes, spacing — and the curve is written literally in QML as `Easing.OutExpo`. That is a named constant, not a magic number, and `omarchy-style` can rewrite it by regex the same way it rewrites hexes.
 
-**Trade-off accepted:** `Tokens.js` exists in twenty copies on disk. Editing one by hand will be overwritten on the next sync. The source of truth is the TOML, and `tokens.md` will say so in its first line.
+**Trade-off accepted:** `Tokens.js` exists in one copy per plugin that animates anything — not all twenty-two need it. Editing one by hand will be overwritten on the next sync. The source of truth is the TOML, and `tokens.md` will say so in its first line.
 
 ## The dashboard, redesigned
 
@@ -104,6 +104,12 @@ Rejected: a dedicated fourth column (squeezes the other three exactly where the 
 `omarchy-agenda` currently answers only "what is on today". Marking days with events needs a month mode: given a year and month, return the set of days holding at least one event. Same JSON-always-valid contract, same fake-khal test approach as the existing seven tests.
 
 The calendar grid arithmetic — which weekday the 1st falls on, how many leading and trailing filler days, leap years, months needing six rows — goes into a `Calendar.js` with real tests, for the same reason `Metrics.js` exists: headless QML does not run on this machine, so pure logic must be separable to be testable.
+
+## Interactivity
+
+The user asked for the surfaces to feel "more interactive". This cycle delivers the part that is presentational: the calendar's `‹ ›` month paging, hover feedback on anything clickable, and the press/hover states of controls we draw ourselves.
+
+It does **not** make dashboard entries actionable — clicking an event to open it, a notification to jump to its app, a metric to open its panel. That is functionality, not visual language, and it belongs to each surface's own cycle. Recorded here so the gap is deliberate rather than forgotten.
 
 ## Verification
 
