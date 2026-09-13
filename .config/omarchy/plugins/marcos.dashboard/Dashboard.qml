@@ -107,6 +107,30 @@ Item {
             font.family: Style.font.family
             font.pixelSize: Style.font.body
           }
+
+          Row {
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: Style.spacing.sm
+
+            // Machine already knows both facts, so the dot asks it rather than
+            // duplicating the thresholds here.
+            readonly property bool alert: machine.needsAttention
+
+            Rectangle {
+              width: Style.space(10)
+              height: Style.space(10)
+              radius: width / 2
+              anchors.verticalCenter: parent.verticalCenter
+              color: parent.alert ? "#f9e2af" : "#a6e3a1"
+            }
+            Text {
+              text: parent.alert ? machine.attentionReason : "todo bien"
+              color: Color.muted
+              font.family: Style.font.family
+              font.pixelSize: Style.font.caption
+            }
+          }
         }
 
         Row {

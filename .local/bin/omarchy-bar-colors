@@ -116,6 +116,34 @@ def patch_agents_icon(text: str) -> str:
 EXTRA = {"omarchy.agents": patch_agents_icon}
 
 
+# The dashboard is not a bar widget, so the per-widget patching above does not
+# reach it, but it repeats the same cluster hexes. Rewriting them here keeps one
+# edit to CLUSTERS moving both surfaces.
+DASHBOARD_COLORS = {
+    "clusterContext": "context",
+    "clusterTools": "tools",
+    "clusterResources": "resources",
+}
+
+
+def patch_dashboard() -> str:
+    path = DOTFILES_PLUGINS / "marcos.dashboard" / "Dashboard.qml"
+    if not path.is_file():
+        return "not installed"
+    text = path.read_text()
+    original = text
+    for prop, cluster in DASHBOARD_COLORS.items():
+        text = re.sub(
+            rf'(readonly property color {prop}: )"#[0-9A-Fa-f]{{6}}"',
+            rf'\g<1>"{CLUSTERS[cluster]}"',
+            text,
+        )
+    if text == original:
+        return "unchanged"
+    path.write_text(text)
+    return "updated"
+
+
 def run(cmd: list[str], check: bool = False) -> subprocess.CompletedProcess:
     return subprocess.run(cmd, env=ENV, capture_output=True, text=True, check=check)
 
@@ -256,6 +284,8 @@ def main() -> int:
                 path.write_text(after)
                 status += " + icon"
         report.append((widget, cluster, status))
+
+    report.append(("marcos.dashboard", "surface", patch_dashboard()))
 
     run(["omarchy-shell", "shell", "rescanPlugins"])
 
