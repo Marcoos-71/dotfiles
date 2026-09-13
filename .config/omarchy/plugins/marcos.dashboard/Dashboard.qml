@@ -148,6 +148,13 @@ Item {
             height: parent.height
             title: "MÁQUINA"
             accent: root.clusterResources
+
+            Machine {
+              id: machine
+              width: parent.width
+              active: root.opened
+              shell: root.shell
+            }
           }
         }
       }
