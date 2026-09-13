@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "marcos.metrics",
+  "name": "Metrics",
+  "version": "1.0.0",
+  "author": "marcos",
+  "description": "Shared CPU, memory, temperature and network readings",
+  "kinds": ["service"],
+  "keepLoaded": true,
+  "entryPoints": { "service": "Service.qml" }
+}
