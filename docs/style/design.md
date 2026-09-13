@@ -52,7 +52,8 @@ The rejected alternatives, recorded so the question is not reopened blind: a 150
 The user picked medium blur over a flat scrim and over heavy blur.
 
 - Backdrop: `layerrule = blur` on our overlay layers only, with the scrim alpha dropped from the current 0.55 to 0.30. The point of the lighter scrim is that blur already does the separation work, so the veil no longer has to.
-- Enabling `decoration:blur:enabled` in Hyprland is safe here: there is currently no translucent window anywhere on this machine (no opacity rules, no terminal transparency, bar `transparent: false`), so the setting changes nothing until a layer opts in by name.
+- Enabling `decoration:blur:enabled` is **not** free by default. Omarchy tags every window `default-opacity` and applies `opacity = "0.985 0.96"`, so every window is slightly translucent and would start costing a blur pass. The visual gain at 98.5% opacity is nil; the cost on a machine that runs games is not. The blur must therefore be enabled globally *and* switched off for windows (`noblur` on all of them), leaving only our overlay layers opted in by namespace.
+- This corrects an earlier claim in this document that no translucent surface existed. It was wrong: the opacity comes from `default/hypr/windows.lua`, not from user config, which is why it did not show up in a grep of `~/dotfiles`.
 - Three elevation levels: bar (no shadow), popup, overlay. The concrete offsets, blurs and alphas live in `style-tokens.toml`; this design fixes only that there are three and what each is for.
 
 **Must be calibrated on screen.** The 9px used in the browser mockup does not map one-to-one onto Hyprland's blur. The plan carries an explicit calibration step with candidate values judged on the real display.
