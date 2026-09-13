@@ -17,9 +17,27 @@ BarWidget {
   // rather than background chatter. 2 MiB/s is the value the old script used.
   readonly property real transferThreshold: 2 * 1024 * 1024
 
-  property string iface: ""
-  property real rxRate: -1
-  property real txRate: -1
+  // Same lookup as marcos.sysmon. Repeated rather than shared because the two
+  // plugins are separate directories with no import path between them.
+  property var metrics: null
+
+  function resolveMetrics() {
+    if (root.bar && root.bar.shell && typeof root.bar.shell.ensureService === "function")
+      root.metrics = root.bar.shell.ensureService("marcos.metrics")
+  }
+
+  onBarChanged: resolveMetrics()
+  Component.onCompleted: resolveMetrics()
+
+  readonly property bool useService: root.metrics !== null
+
+  property string ownIface: ""
+  property real ownRxRate: -1
+  property real ownTxRate: -1
+
+  readonly property string iface: useService ? metrics.iface : ownIface
+  readonly property real rxRate: useService ? metrics.rxRate : ownRxRate
+  readonly property real txRate: useService ? metrics.txRate : ownTxRate
 
   property real prevRx: -1
   property real prevTx: -1
@@ -51,29 +69,31 @@ BarWidget {
       var parts = lines[i].trim().split(/\s+/)
       // Destination 00000000 is the default route.
       if (parts.length > 1 && parts[1] === "00000000" && parts[0] !== "Iface") {
-        if (parts[0] !== iface) {
-          iface = parts[0]
+        if (parts[0] !== ownIface) {
+          ownIface = parts[0]
           prevRx = -1
           prevTx = -1
         }
         return
       }
     }
-    iface = ""
-    rxRate = -1
-    txRate = -1
+    ownIface = ""
+    ownRxRate = -1
+    ownTxRate = -1
   }
 
   function readCounter(view) {
     view.reload()
-    var value = Number(String(view.text() || "").trim())
+    var raw = String(view.text() || "").trim()
+    if (raw === "") return -1
+    var value = Number(raw)
     return isFinite(value) ? value : -1
   }
 
   function refresh() {
-    if (iface === "") {
+    if (ownIface === "") {
       resolveIface()
-      if (iface === "") return
+      if (ownIface === "") return
     }
 
     var rx = readCounter(rxFile)
@@ -88,8 +108,8 @@ BarWidget {
     if (prevRx >= 0 && elapsed > 0) {
       // Counters reset when the interface is reinitialised; treat a negative
       // delta as a fresh baseline rather than reporting a nonsense spike.
-      rxRate = rx >= prevRx ? (rx - prevRx) / elapsed : -1
-      txRate = tx >= prevTx ? (tx - prevTx) / elapsed : -1
+      ownRxRate = rx >= prevRx ? (rx - prevRx) / elapsed : -1
+      ownTxRate = tx >= prevTx ? (tx - prevTx) / elapsed : -1
     }
     prevRx = rx
     prevTx = tx
@@ -103,20 +123,20 @@ BarWidget {
   FileView { id: routeFile; path: "/proc/net/route"; watchChanges: false; printErrors: false }
   FileView {
     id: rxFile
-    path: root.iface === "" ? "" : "/sys/class/net/" + root.iface + "/statistics/rx_bytes"
+    path: root.ownIface === "" ? "" : "/sys/class/net/" + root.ownIface + "/statistics/rx_bytes"
     watchChanges: false
     printErrors: false
   }
   FileView {
     id: txFile
-    path: root.iface === "" ? "" : "/sys/class/net/" + root.iface + "/statistics/tx_bytes"
+    path: root.ownIface === "" ? "" : "/sys/class/net/" + root.ownIface + "/statistics/tx_bytes"
     watchChanges: false
     printErrors: false
   }
 
   Timer {
     interval: 2000
-    running: true
+    running: !root.useService
     repeat: true
     triggeredOnStart: true
     onTriggered: root.refresh()
