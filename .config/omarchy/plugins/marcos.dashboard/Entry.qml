@@ -14,7 +14,9 @@ Item {
 
   Text {
     id: leadText
-    width: Style.space(64)
+    // Sized for "HH:MM" so times line up, but an all-day event's "todo el día"
+    // is wider and would otherwise draw straight over the title.
+    width: Math.max(Style.space(64), implicitWidth)
     text: root.lead
     color: root.leadColor
     font.family: Style.font.family

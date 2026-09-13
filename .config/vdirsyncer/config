@@ -1,20 +1,21 @@
 [general]
 status_path = "~/.local/state/vdirsyncer/status/"
 
+# Google dropped basic auth for CalDAV (app passwords authenticate against IMAP
+# but return loginRequired here), and the dashboard only ever reads today's
+# events, so the remote is the calendar's secret iCal address over plain http.
+# That storage is read_only by definition, which matches what we need.
 [pair google]
 a = "google_local"
 b = "google_remote"
-collections = ["from b"]
+collections = null
 conflict_resolution = "b wins"
-metadata = ["displayname", "color"]
 
 [storage google_local]
 type = "filesystem"
-path = "~/.calendars/"
+path = "~/.calendars/personal/"
 fileext = ".ics"
 
 [storage google_remote]
-type = "caldav"
-url = "https://apidata.googleusercontent.com/caldav/v2/"
-username.fetch = ["command", "sh", "-c", "sed -n 1p ~/.config/omarchy/secrets/google-calendar"]
-password.fetch = ["command", "sh", "-c", "sed -n 2p ~/.config/omarchy/secrets/google-calendar"]
+type = "http"
+url.fetch = ["command", "sh", "-c", "sed -n 1p ~/.config/omarchy/secrets/google-ical"]
