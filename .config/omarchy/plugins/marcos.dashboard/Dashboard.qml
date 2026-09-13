@@ -122,6 +122,11 @@ Item {
             height: parent.height
             title: "HOY"
             accent: root.clusterContext
+
+            Today {
+              width: parent.width
+              active: root.opened
+            }
           }
 
           Section {
