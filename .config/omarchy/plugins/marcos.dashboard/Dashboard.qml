@@ -135,6 +135,11 @@ Item {
             height: parent.height
             title: "QUÉ ME PERDÍ"
             accent: root.clusterTools
+
+            Missed {
+              width: parent.width
+              active: root.opened
+            }
           }
 
           Section {
