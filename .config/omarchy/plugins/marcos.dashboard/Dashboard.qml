@@ -3,6 +3,7 @@ import Quickshell.Wayland
 import QtQuick
 import qs.Commons
 import qs.Ui
+import "Tokens.js" as T
 
 Item {
   id: root
@@ -49,7 +50,7 @@ Item {
 
   PanelWindow {
     id: panel
-    visible: root.opened
+    visible: root.opened || card.opacity > 0
     anchors { top: true; bottom: true; left: true; right: true }
     color: "transparent"
     WlrLayershell.namespace: "marcos-dashboard"
@@ -58,8 +59,18 @@ Item {
     exclusionMode: ExclusionMode.Ignore
 
     Rectangle {
+      id: scrim
       anchors.fill: parent
       color: Color.menu.scrim
+      opacity: root.opened ? 1 : 0
+      // Leaving is quicker than arriving: it is what makes the surface feel
+      // responsive rather than slow.
+      Behavior on opacity {
+        NumberAnimation {
+          duration: root.opened ? T.motionNormal : T.motionFast
+          easing.type: root.opened ? Easing.OutExpo : Easing.OutCubic
+        }
+      }
       MouseArea { anchors.fill: parent; onClicked: root.dismiss() }
     }
 
@@ -79,6 +90,28 @@ Item {
       color: Color.menu.background
       border.color: Color.menu.border
       border.width: 1
+      opacity: root.opened ? 1 : 0
+      scale: root.opened ? 1 : T.motionScaleFrom
+      anchors.verticalCenterOffset: root.opened ? 0 : T.motionRise
+
+      Behavior on opacity {
+        NumberAnimation {
+          duration: root.opened ? T.motionNormal : T.motionFast
+          easing.type: root.opened ? Easing.OutExpo : Easing.OutCubic
+        }
+      }
+      Behavior on scale {
+        NumberAnimation {
+          duration: root.opened ? T.motionNormal : T.motionFast
+          easing.type: root.opened ? Easing.OutExpo : Easing.OutCubic
+        }
+      }
+      Behavior on anchors.verticalCenterOffset {
+        NumberAnimation {
+          duration: root.opened ? T.motionNormal : T.motionFast
+          easing.type: root.opened ? Easing.OutExpo : Easing.OutCubic
+        }
+      }
 
       // Swallows clicks so hitting the card does not dismiss through the scrim.
       MouseArea { anchors.fill: parent }
