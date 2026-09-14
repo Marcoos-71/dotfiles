@@ -110,4 +110,9 @@ Column {
     font.family: Style.font.family
     font.pixelSize: Style.font.caption
   }
+
+  MonthGrid {
+    width: parent.width
+    active: root.active
+  }
 }
