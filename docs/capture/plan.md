@@ -1155,6 +1155,10 @@ Panel {
   onSelectedKeyChanged: {
     notesField.text = ""
     root.statusText = ""
+    // The Repeater below destroys every field from the old category. If one
+    // of them held keyboard focus, Qt has nothing left to hand it to —
+    // titleField is the one control guaranteed to survive every switch.
+    Qt.callLater(function() { titleField.forceActiveFocus() })
   }
 
   Connections {
