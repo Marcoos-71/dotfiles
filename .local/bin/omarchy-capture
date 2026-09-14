@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+"""Write a captured note into the vault, resolving name collisions."""
+
+import json
+import sys
+from pathlib import Path
+
+
+def safe_name(name):
+    # Defense in depth: the caller (Capture.js's toFilename) already strips
+    # filesystem-illegal characters, but a stray "/" here must never be
+    # allowed to escape the target folder.
+    cleaned = str(name or "").replace("/", "-").replace("\\", "-").strip()
+    return cleaned or "Sin titulo"
+
+
+def unique_path(folder, title):
+    candidate = folder / (title + ".md")
+    n = 2
+    while candidate.exists():
+        candidate = folder / (title + " " + str(n) + ".md")
+        n += 1
+    return candidate
+
+
+def emit(ok, path, reason):
+    json.dump({"ok": ok, "path": path, "reason": reason}, sys.stdout, ensure_ascii=False)
+    sys.stdout.write("\n")
+    return 0
+
+
+def main():
+    if len(sys.argv) != 4:
+        return emit(False, "", "usage: omarchy-capture <folder> <title> <body>")
+
+    folder, title, body = sys.argv[1], sys.argv[2], sys.argv[3]
+    if not folder or not title:
+        return emit(False, "", "faltan folder o title")
+
+    try:
+        directory = Path(folder)
+        directory.mkdir(parents=True, exist_ok=True)
+        path = unique_path(directory, safe_name(title))
+        path.write_text(body, encoding="utf-8")
+    except OSError as error:
+        return emit(False, "", str(error))
+
+    return emit(True, str(path), "")
+
+
+if __name__ == "__main__":
+    sys.exit(main())
