@@ -7,6 +7,7 @@ Una carpeta por asunto; el código de cada asunto vive donde tiene que vivir
 | Carpeta | Qué es |
 |---|---|
 | `dashboard/` | Overlay de resumen (`SUPER + D`) y el servicio `marcos.metrics` que lo alimenta |
+| `capture/` | Captura rápida al vault desde la barra (`marcos.vault-capture`) |
 | `style/` | Lenguaje visual: movimiento, profundidad, espacio y tipografía de las superficies propias |
 
 Cada carpeta lleva `design.md` (qué se decidió y por qué) y `plan.md` (cómo construirlo,
