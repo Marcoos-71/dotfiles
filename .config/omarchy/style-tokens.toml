@@ -1,0 +1,30 @@
+# ~/dotfiles/.config/omarchy/style-tokens.toml
+# Source of truth for the visual language. `omarchy-style` generates each
+# plugin's Tokens.js from this file; editing a generated Tokens.js by hand
+# is pointless because the next sync overwrites it.
+
+[motion]
+# Opening a surface. Chosen over a 150ms fade (imperceptible on a full-screen
+# card) and a 420ms spring (wearing by the third time in a day).
+normal = 260
+# Transitions inside a surface that is already open. Also the exit duration:
+# leaving is always quicker than arriving.
+fast = 150
+# Semantic state changes we own, like netspeed turning blue on traffic.
+instant = 90
+rise = 8
+scale-from = 0.965
+
+[depth]
+scrim-alpha = 0.30
+rule-alpha = 0.16
+
+[elevation.popup]
+y = 6
+blur = 18
+alpha = 0.35
+
+[elevation.overlay]
+y = 14
+blur = 38
+alpha = 0.50
