@@ -10,6 +10,10 @@
 
 **Spec:** `docs/style/design.md`
 
+> **Estado (14-09-2026): las ocho tareas están hechas, verificadas y commiteadas.**
+> Queda una sola decisión de gusto: `decoration:blur:size` está en 8 (se compararon
+> 4, 8 y 12 en pantalla). Cambiarlo es una línea en `.config/hypr/looknfeel.lua`.
+
 ## Global Constraints
 
 - **Files live in `~/dotfiles/` and are symlinked into `~/.config/`.** Never edit through the symlink; `readlink -f` first.
@@ -46,7 +50,7 @@
   - `ruleAlpha` — 0..1, the separator line against the card background
 - Produces: `parse_tokens(text) -> dict` and `render_tokens_js(values) -> str` in `omarchy-style`.
 
-- [ ] **Step 1: Write the token file**
+- [x] **Step 1: Write the token file**
 
 ```toml
 # ~/dotfiles/.config/omarchy/style-tokens.toml
@@ -81,7 +85,7 @@ blur = 38
 alpha = 0.50
 ```
 
-- [ ] **Step 2: Write the failing tests**
+- [x] **Step 2: Write the failing tests**
 
 ```python
 # tests/test_style_tokens.py
@@ -129,12 +133,12 @@ def test_old_name_still_runs():
     assert old.resolve().name == "omarchy-style"
 ```
 
-- [ ] **Step 3: Run the tests to verify they fail**
+- [x] **Step 3: Run the tests to verify they fail**
 
 Run: `cd ~/dotfiles && uv run --with pytest pytest tests/test_style_tokens.py -q`
 Expected: FAIL — `omarchy-style` does not exist yet.
 
-- [ ] **Step 4: Rename the script and leave the compatibility symlink**
+- [x] **Step 4: Rename the script and leave the compatibility symlink**
 
 ```bash
 cd ~/dotfiles/.local/bin
@@ -146,7 +150,7 @@ ls -la ~/.local/bin/omarchy-bar-colors ~/.local/bin/omarchy-style
 
 The symlink in `~/.local/bin/omarchy-bar-colors` already points into dotfiles, so it keeps resolving through the new relative symlink.
 
-- [ ] **Step 5: Add the parser and renderer to `omarchy-style`**
+- [x] **Step 5: Add the parser and renderer to `omarchy-style`**
 
 Add after the `CLUSTERS` definition. `tomllib` is stdlib from Python 3.11, so nothing to install.
 
@@ -222,7 +226,7 @@ def patch_tokens() -> str:
 
 Note `parse_tokens`'s `depth` branch: `scrim-alpha` under `[depth]` becomes `scrimAlpha`, with no section prefix, because "depth" adds nothing to the name.
 
-- [ ] **Step 6: Call it from `main()`**
+- [x] **Step 6: Call it from `main()`**
 
 Immediately before the existing `report.append(("marcos.dashboard", "surface", patch_dashboard()))` line:
 
@@ -230,12 +234,12 @@ Immediately before the existing `report.append(("marcos.dashboard", "surface", p
     report.append(("style-tokens", "tokens", patch_tokens()))
 ```
 
-- [ ] **Step 7: Run the tests to verify they pass**
+- [x] **Step 7: Run the tests to verify they pass**
 
 Run: `cd ~/dotfiles && uv run --with pytest pytest tests/test_style_tokens.py -q`
 Expected: PASS, 3 tests.
 
-- [ ] **Step 8: Run the generator and prove the round trip**
+- [x] **Step 8: Run the generator and prove the round trip**
 
 ```bash
 OMARCHY_PATH=/usr/share/omarchy omarchy-style | grep -E "style-tokens|dashboard"
@@ -247,11 +251,11 @@ grep motionNormal ~/dotfiles/.config/omarchy/plugins/marcos.dashboard/Tokens.js
 ```
 Expected: the report line reads `style-tokens tokens updated 3` on the first run, `updated 1` after the corruption, and the final grep shows `260` again.
 
-- [ ] **Step 9: Write the reference doc**
+- [x] **Step 9: Write the reference doc**
 
 Create `~/dotfiles/docs/style/tokens.md` opening with the sentence "The source of truth is `~/.config/omarchy/style-tokens.toml`; every `Tokens.js` is generated and will be overwritten." Then a table of every token name, its value, its unit, and one line on what it is for — the same content as the TOML comments, laid out for reading rather than editing. Close with the two commands: how to change a value (edit the TOML, run `omarchy-style`) and how to see what changed (`git diff`).
 
-- [ ] **Step 10: Commit** (ask the user first)
+- [x] **Step 10: Commit** (ask the user first)
 
 ```bash
 cd ~/dotfiles
@@ -272,7 +276,7 @@ git commit -m "feat(style): token source of truth and generator"
 
 The overlay currently snaps in and out because `PanelWindow.visible` is bound straight to `root.opened`. The window has to outlive the closing animation, which is the same trick Omarchy's own `PopupCard` uses (`visible: open || card.opacity > 0`).
 
-- [ ] **Step 1: Import the tokens and keep the window alive during the exit**
+- [x] **Step 1: Import the tokens and keep the window alive during the exit**
 
 ```qml
 import "Tokens.js" as T
@@ -284,7 +288,7 @@ Change the `PanelWindow`'s visibility:
     visible: root.opened || card.opacity > 0
 ```
 
-- [ ] **Step 2: Animate the scrim**
+- [x] **Step 2: Animate the scrim**
 
 Replace the scrim `Rectangle` with:
 
@@ -306,7 +310,7 @@ Replace the scrim `Rectangle` with:
     }
 ```
 
-- [ ] **Step 3: Animate the card**
+- [x] **Step 3: Animate the card**
 
 On the `card` Rectangle, add opacity, scale and a vertical offset. `anchors.centerIn: parent` is already there, so the rise is expressed as a centre offset rather than a `y` binding, which would fight the anchor.
 
@@ -335,7 +339,7 @@ On the `card` Rectangle, add opacity, scale and a vertical offset. `anchors.cent
       }
 ```
 
-- [ ] **Step 4: Verify it opens and closes smoothly**
+- [x] **Step 4: Verify it opens and closes smoothly**
 
 ```bash
 OMARCHY_PATH=/usr/share/omarchy omarchy restart shell && sleep 7
@@ -354,11 +358,11 @@ magick /tmp/mid.png -crop 1700x300+430+130 +repage -resize 70% /tmp/mid-crop.png
 ```
 Read `/tmp/mid-crop.png`. Expected: the card partially faded and slightly offset, not fully drawn and not absent.
 
-- [ ] **Step 5: Verify the keyboard still works after the change**
+- [x] **Step 5: Verify the keyboard still works after the change**
 
 Escape, a click outside, and `SUPER + D` must all still dismiss, and a click inside must not. Use `ydotool` for clicks, remembering its `-a` coordinates are **half** of screen pixels on this display, and `ydotool key 125:1 32:1 32:0 125:0` for `SUPER + D` — `wtype` cannot trigger Hyprland binds.
 
-- [ ] **Step 6: Commit** (ask the user first)
+- [x] **Step 6: Commit** (ask the user first)
 
 ```bash
 cd ~/dotfiles
@@ -380,7 +384,7 @@ git commit -m "feat(dashboard): animate open and close from the shared tokens"
 
 **This task starts with a discovery step, because the Lua syntax for layer rules in this Hyprland is unverified.** Omarchy's own config never writes one. Do not guess it into the file; find out first.
 
-- [ ] **Step 1: Discover the layer-rule syntax**
+- [x] **Step 1: Discover the layer-rule syntax**
 
 Hyprland here is 0.56.2 with a Lua config layer. Try these in order, checking after each with `hyprctl layerrules` (or `hyprctl -j layers`):
 
@@ -396,7 +400,7 @@ grep -rn "source" ~/.config/hypr/*.lua ~/.config/hypr/*.conf | head
 
 If none of the forms work from Lua, fall back to a `~/dotfiles/.config/hypr/blur.conf` sourced from the Lua config, and say so in the commit message.
 
-- [ ] **Step 2: Enable blur but exclude windows**
+- [x] **Step 2: Enable blur but exclude windows**
 
 Every window carries `opacity = "0.985 0.96"` from `default/hypr/windows.lua`, so enabling blur globally would start a blur pass behind every one of them for no visible gain. Enable it, then turn it off for windows, leaving only our layer opted in.
 
@@ -427,7 +431,7 @@ hyprctl getoption decoration:blur:passes
 ```
 Expected: `int: 1`, `int: 8`, `int: 2`. If a key is rejected, `hyprctl keyword` will say so and the name needs correcting against `hyprctl getoption` rather than guessed.
 
-- [ ] **Step 3: Lighten the scrim**
+- [x] **Step 3: Lighten the scrim**
 
 In `Dashboard.qml`, the scrim currently uses `Color.menu.scrim`, whose alpha comes from the theme (0.5 by default). With blur doing the separation, the veil should recede:
 
@@ -435,7 +439,7 @@ In `Dashboard.qml`, the scrim currently uses `Color.menu.scrim`, whose alpha com
       color: Qt.rgba(Color.menu.scrim.r, Color.menu.scrim.g, Color.menu.scrim.b, T.scrimAlpha)
 ```
 
-- [ ] **Step 4: Calibrate on the real display**
+- [x] **Step 4: Calibrate on the real display**
 
 The 9px used in the browser mockup does not map onto Hyprland's `size`/`passes` pair. Judge three candidates on screen with a busy wallpaper and a window behind the card:
 
@@ -451,14 +455,14 @@ magick /tmp/blur-4.png /tmp/blur-8.png /tmp/blur-12.png -resize 45% -append /tmp
 ```
 Read `/tmp/blur-compare.png` and pick the one where the desktop is clearly subordinate but you can still tell what was behind — that is what the user chose. Write the winner into `looknfeel.lua`. Ask the user to confirm the choice rather than deciding alone: this is the one value in the plan that is a matter of taste rather than correctness.
 
-- [ ] **Step 5: Confirm windows are not blurred**
+- [x] **Step 5: Confirm windows are not blurred**
 
 ```bash
 hyprctl clients -j | jq -r '.[0].class'
 ```
 Open the dashboard over a window and read a screenshot: the window behind the card must be blurred (it is under our layer), but with the dashboard closed nothing on the desktop should look softer than before. Compare against a `grim` taken before this task.
 
-- [ ] **Step 6: Commit** (ask the user first)
+- [x] **Step 6: Commit** (ask the user first)
 
 ```bash
 cd ~/dotfiles
@@ -485,7 +489,7 @@ git commit -m "feat(style): blur the overlay backdrop, not every window"
 
 Headless QML does not run on this machine (`qml` and `qmltestrunner` both exit silently), so this arithmetic lives outside QML to be testable at all — the same reason `Metrics.js` exists.
 
-- [ ] **Step 1: Copy the test harness**
+- [x] **Step 1: Copy the test harness**
 
 ```bash
 cd ~/dotfiles/.config/omarchy/plugins/marcos.dashboard
@@ -493,7 +497,7 @@ mkdir -p test
 cp ../marcos.metrics/test/load.mjs test/load.mjs
 ```
 
-- [ ] **Step 2: Write the failing tests**
+- [x] **Step 2: Write the failing tests**
 
 Six rows of seven is always 42 cells: a fixed grid never reflows as the user pages months, which is what makes the arrows feel solid instead of jumpy.
 
@@ -565,7 +569,7 @@ test("isToday only matches a current-month cell on the right date", () => {
 })
 ```
 
-- [ ] **Step 3: Run the tests to verify they fail**
+- [x] **Step 3: Run the tests to verify they fail**
 
 Run: `cd ~/dotfiles/.config/omarchy/plugins/marcos.dashboard && deno test --allow-read test/calendar.test.mjs`
 Expected: FAIL — `Calendar.js` does not exist, so `loadQmlJs` throws ENOENT.
@@ -578,7 +582,7 @@ date -d 2026-02-01 +%A   # expect domingo / Sunday
 ```
 If any differs, fix the **test**, not the implementation — the calendar is right and the fixture is wrong.
 
-- [ ] **Step 4: Write the implementation**
+- [x] **Step 4: Write the implementation**
 
 ```javascript
 // Calendar.js
@@ -630,12 +634,12 @@ function isToday(cell, year, month, today) {
 
 `daysInMonth(year, 0)` is never called because `monthGrid` maps month 0 to 12 before asking, and `new Date(year, 0, 0)` would otherwise return 31 December of the previous year — correct by luck, but not something to rely on.
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 Run: `cd ~/dotfiles/.config/omarchy/plugins/marcos.dashboard && deno test --allow-read test/calendar.test.mjs`
 Expected: PASS, 11 tests.
 
-- [ ] **Step 6: Commit** (ask the user first)
+- [x] **Step 6: Commit** (ask the user first)
 
 ```bash
 cd ~/dotfiles
@@ -655,7 +659,7 @@ git commit -m "feat(dashboard): tested month-grid arithmetic"
 - Consumes: `khal` on PATH.
 - Produces: `omarchy-agenda --month YYYY-MM` prints `{"ok": bool, "reason": str, "days": [Number]}` — the day-of-month numbers holding at least one event, sorted ascending, no duplicates. Always valid JSON, always exit 0, same contract as the default mode.
 
-- [ ] **Step 1: Confirm khal's real output for a month range first**
+- [x] **Step 1: Confirm khal's real output for a month range first**
 
 The default mode already taught this lesson: this khal rejects `--color=false` and spells it `--no-color`. Do not assume the month query either.
 
@@ -664,7 +668,7 @@ khal --no-color list --day-format "" --format "{start-date}" 2026-09-01 2026-09-
 ```
 Expected: one line per event, each a date in `dd.mm.` form — the `dateformat` from `~/.config/khal/config`. Note the exact shape before writing the parser; if it prints something else, the format string and `parse_days` below change to match.
 
-- [ ] **Step 2: Write the failing tests**
+- [x] **Step 2: Write the failing tests**
 
 Append to `tests/test_omarchy_agenda.py`:
 
@@ -705,12 +709,12 @@ def test_month_rejects_a_malformed_argument(tmp_path):
     assert "YYYY-MM" in data["reason"]
 ```
 
-- [ ] **Step 3: Run the tests to verify they fail**
+- [x] **Step 3: Run the tests to verify they fail**
 
 Run: `cd ~/dotfiles && uv run --with pytest pytest tests/test_omarchy_agenda.py -q`
 Expected: 4 new failures, the original 7 still passing.
 
-- [ ] **Step 4: Write the implementation**
+- [x] **Step 4: Write the implementation**
 
 Add to `omarchy-agenda`, above `main()`:
 
@@ -775,19 +779,19 @@ And at the top of `main()`, before the `--setup` check:
 
 `parse_days` filters on the month because khal prints events from adjacent months when a multi-day event overlaps the range boundary.
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 Run: `cd ~/dotfiles && uv run --with pytest pytest tests/test_omarchy_agenda.py -q`
 Expected: PASS, 11 tests.
 
-- [ ] **Step 6: Run it against the real calendar**
+- [x] **Step 6: Run it against the real calendar**
 
 ```bash
 omarchy-agenda --month 2026-09 | python3 -m json.tool
 ```
 Expected: `ok: true` and a `days` list that includes `17` — the TFM presentation. Cross-check with `khal --no-color list --day-format "" --format "{start-date} {title}" 2026-09-01 2026-09-30`.
 
-- [ ] **Step 7: Commit** (ask the user first)
+- [x] **Step 7: Commit** (ask the user first)
 
 ```bash
 cd ~/dotfiles
@@ -807,7 +811,7 @@ git commit -m "feat(agenda): month mode reporting which days hold events"
 - Consumes: `Calendar.js` (Task 4), `omarchy-agenda --month` (Task 5), `Tokens.js` (Task 1).
 - Produces: `MonthGrid.qml` with `property bool active`, `property int year`, `property int month`, `property var eventDays` (array of day numbers).
 
-- [ ] **Step 1: Write the component**
+- [x] **Step 1: Write the component**
 
 ```qml
 // MonthGrid.qml
@@ -962,7 +966,7 @@ Column {
 }
 ```
 
-- [ ] **Step 2: Mount it at the foot of the HOY column**
+- [x] **Step 2: Mount it at the foot of the HOY column**
 
 In `Today.qml`, after the reminders `Repeater` and its "Sin recordatorios" text, add:
 
@@ -973,7 +977,7 @@ In `Today.qml`, after the reminders `Repeater` and its "Sin recordatorios" text,
   }
 ```
 
-- [ ] **Step 3: Verify against the real calendar**
+- [x] **Step 3: Verify against the real calendar**
 
 ```bash
 OMARCHY_PATH=/usr/share/omarchy omarchy restart shell && sleep 7
@@ -985,14 +989,14 @@ Read `/tmp/cal-crop.png`. Expected: the current month, today filled in blue with
 
 Then test paging: click `›` twice and confirm the label moves to November, the grid stays six rows, and the dots follow the new month rather than staying on September's.
 
-- [ ] **Step 4: Verify the degraded path**
+- [x] **Step 4: Verify the degraded path**
 
 ```bash
 PATH=/nonexistent omarchy-agenda --month 2026-09
 ```
 Expected: `{"ok": false, ..., "days": []}`. With that, the grid must still render every day correctly and simply show no dots — a calendar that cannot reach khal is still a usable calendar.
 
-- [ ] **Step 5: Commit** (ask the user first)
+- [x] **Step 5: Commit** (ask the user first)
 
 ```bash
 cd ~/dotfiles
@@ -1013,7 +1017,7 @@ git commit -m "feat(dashboard): month grid with event dots in the today column"
 - Consumes: `Tokens.js`.
 - Produces: `Section.qml` gains `property bool divider` — draws a vertical rule on its left edge.
 
-- [ ] **Step 1: Centre the header**
+- [x] **Step 1: Centre the header**
 
 In `Dashboard.qml`, the header `Item` currently left-aligns `timeText` and `dateText` and right-anchors the status row. Centre the two texts, leaving the status where it is:
 
@@ -1037,7 +1041,7 @@ In `Dashboard.qml`, the header `Item` currently left-aligns `timeText` and `date
           }
 ```
 
-- [ ] **Step 2: Add the rule under the header**
+- [x] **Step 2: Add the rule under the header**
 
 Between the header `Item` and the `Row` of sections, inside the same `Column`:
 
@@ -1049,7 +1053,7 @@ Between the header `Item` and the `Row` of sections, inside the same `Column`:
         }
 ```
 
-- [ ] **Step 3: Give `Section.qml` a left divider**
+- [x] **Step 3: Give `Section.qml` a left divider**
 
 Add to `Section.qml`:
 
@@ -1069,7 +1073,7 @@ The rule sits in the gutter rather than inside the column, so it separates witho
 
 Then in `Dashboard.qml`, set `divider: true` on the second and third `Section` only — the first column has nothing to its left.
 
-- [ ] **Step 4: Replace the text-dash separators**
+- [x] **Step 4: Replace the text-dash separators**
 
 In `Today.qml` and `Missed.qml`, the group headings are built from literal dashes (`"── recordatorios ──"`, `"── en marcha ──"`). Replace each with a hairline above a plain label:
 
@@ -1093,7 +1097,7 @@ In `Today.qml` and `Missed.qml`, the group headings are built from literal dashe
 
 Use `"en marcha"` for the corresponding label in `Missed.qml`.
 
-- [ ] **Step 5: Verify the whole card**
+- [x] **Step 5: Verify the whole card**
 
 ```bash
 OMARCHY_PATH=/usr/share/omarchy omarchy restart shell && sleep 7
@@ -1108,7 +1112,7 @@ Sample the rule colour rather than judging it by eye — at this size a hairline
 magick /tmp/card.png -crop 1x60+1000+400 +repage -format "%[pixel:p{0,30}]" info:
 ```
 
-- [ ] **Step 6: Commit** (ask the user first)
+- [x] **Step 6: Commit** (ask the user first)
 
 ```bash
 cd ~/dotfiles
@@ -1130,7 +1134,7 @@ git commit -m "feat(dashboard): centred header, rules between groups and columns
 
 These two widgets own semantic state colours — `netspeed` turns blue while transferring, `sysmon` turns amber and then red with temperature — and both currently snap between them. Hover and press are not touched: those belong to Omarchy's `WidgetButton`.
 
-- [ ] **Step 1: Find where each widget hands a colour to its button**
+- [x] **Step 1: Find where each widget hands a colour to its button**
 
 ```bash
 grep -n "foreground\|activeColor\|useActiveColor\|transferring\|warm\|hot" \
@@ -1140,7 +1144,7 @@ grep -n "foreground\|activeColor\|useActiveColor\|transferring\|warm\|hot" \
 
 The colour is passed into `WidgetButton`. A `Behavior` cannot be attached from outside that component, so the transition goes on a local property that the binding reads instead.
 
-- [ ] **Step 2: Add an animated local colour in `marcos.netspeed`**
+- [x] **Step 2: Add an animated local colour in `marcos.netspeed`**
 
 ```qml
 import "Tokens.js" as T
@@ -1159,7 +1163,7 @@ import "Tokens.js" as T
 
 Then point the `WidgetButton`'s `foreground` at `root.animatedColor`.
 
-- [ ] **Step 3: Do the same in `marcos.sysmon`**
+- [x] **Step 3: Do the same in `marcos.sysmon`**
 
 Same shape, three states rather than two:
 
@@ -1177,7 +1181,7 @@ import "Tokens.js" as T
   onTargetColorChanged: animatedColor = targetColor
 ```
 
-- [ ] **Step 4: Verify the transition happens**
+- [x] **Step 4: Verify the transition happens**
 
 Force a transfer and capture two frames close together:
 
@@ -1190,7 +1194,7 @@ magick /tmp/n2.png -crop 520x44+2000+0 +repage -resize 250% /tmp/n2-crop.png
 ```
 Read both. Expected: the rate is blue in the second and the widget is legible in both. A 90ms transition is hard to catch mid-flight in a screenshot, so the real check is that nothing regressed — the colour still ends up right and the number still updates.
 
-- [ ] **Step 5: Verify the fallback is intact**
+- [x] **Step 5: Verify the fallback is intact**
 
 ```bash
 rm ~/.config/omarchy/plugins/marcos.metrics
@@ -1202,7 +1206,7 @@ OMARCHY_PATH=/usr/share/omarchy omarchy restart shell
 ```
 Read `/tmp/fb-crop.png`. Expected: both widgets still show live numbers from their own readers. Removing the symlink is the only way to test this — `omarchy plugin disable` leaves `ensureService()` free to instantiate the service anyway.
 
-- [ ] **Step 6: Commit and push** (ask the user first)
+- [x] **Step 6: Commit and push** (ask the user first)
 
 ```bash
 cd ~/dotfiles
