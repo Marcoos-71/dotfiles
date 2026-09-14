@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Io
 import Qt.labs.folderlistmodel
 import qs.Commons
+import "Tokens.js" as T
 
 Column {
   id: root
@@ -87,12 +88,20 @@ Column {
     }
   }
 
+  Rectangle {
+    width: parent.width
+    height: 1
+    color: Qt.rgba(Color.menu.text.r, Color.menu.text.g, Color.menu.text.b, T.ruleAlpha)
+  }
+
   Text {
-    text: "── en marcha ──"
+    text: "en marcha"
     color: Color.muted
     font.family: Style.font.family
     font.pixelSize: Style.font.caption
-    topPadding: Style.spacing.md
+    font.letterSpacing: 1.2
+    topPadding: Style.spacing.sm
+    bottomPadding: Style.spacing.xs
   }
 
   FolderListModel {

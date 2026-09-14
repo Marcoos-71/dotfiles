@@ -129,6 +129,7 @@ Item {
 
           Text {
             id: timeText
+            anchors.horizontalCenter: parent.horizontalCenter
             text: Qt.formatTime(clock.date, "HH:mm")
             color: Color.menu.text
             font.family: Style.font.family
@@ -136,6 +137,7 @@ Item {
           }
           Text {
             id: dateText
+            anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: timeText.bottom
             text: root.spanishDate()
             color: Color.muted
@@ -168,6 +170,12 @@ Item {
           }
         }
 
+        Rectangle {
+          width: parent.width
+          height: 1
+          color: Qt.rgba(Color.menu.text.r, Color.menu.text.g, Color.menu.text.b, T.ruleAlpha)
+        }
+
         Row {
           width: parent.width
           height: parent.height - timeText.height - dateText.height - Style.spacing.lg * 2
@@ -190,6 +198,7 @@ Item {
 
           Section {
             id: missedSection
+            divider: true
             width: parent.columnWidth
             height: parent.height
             title: "QUÉ ME PERDÍ"
@@ -203,6 +212,7 @@ Item {
 
           Section {
             id: machineSection
+            divider: true
             width: parent.columnWidth
             height: parent.height
             title: "MÁQUINA"
