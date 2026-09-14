@@ -1097,7 +1097,6 @@ import Qt.labs.folderlistmodel
 import qs.Commons
 import qs.Ui
 import "Capture.js" as Capture
-import "MultilineField.qml" as ML
 
 // Seven categories, one declarative table (Capture.js) driving all of them:
 // this file knows no category by name, only the three field kinds
@@ -1322,7 +1321,7 @@ Panel {
           font.pixelSize: Style.font.caption
         }
 
-        ML.MultilineField {
+        MultilineField {
           id: notesField
           width: parent.width
           height: Style.space(70)
@@ -1414,8 +1413,6 @@ Panel {
   }
 }
 ```
-
-Note the `import "MultilineField.qml" as ML` / `ML.MultilineField` form: a single-file import needs a name, unlike `import "Capture.js" as Capture` for a `.pragma library` — QML requires this for importing one specific `.qml` file by relative path rather than a whole directory module.
 
 - [ ] **Step 3: Apply the sync and restart the shell**
 

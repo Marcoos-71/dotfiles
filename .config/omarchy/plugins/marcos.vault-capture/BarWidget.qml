@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Io
 import qs.Commons
 import qs.Ui
+import "Capture.js" as Capture
 
 // Quick capture into the Obsidian vault. Notes are plain markdown files in
 // folders, so this writes them directly — no Obsidian plugin, API or running
@@ -15,47 +16,7 @@ BarWidget {
   readonly property string vaultPath: Quickshell.env("HOME") + "/Vault"
   readonly property string vaultName: "Vault"
 
-  // Frontmatter follows the vault's own schemas (see ~/Vault/CLAUDE.md) so the
-  // captured notes are queryable by Dataview like any hand-written one.
-  readonly property var categories: [
-    {
-      key: "idea",
-      label: "Idea",
-      icon: "󰛩",
-      folder: "00-Inbox",
-      frontmatter: ["type: idea", "tags:", "  - inbox"]
-    },
-    {
-      key: "project",
-      label: "Proyecto",
-      icon: "󰌢",
-      folder: "10-Projects",
-      frontmatter: ["type: project", "status: idea", "priority: medium", "tags:", "  - project"]
-    },
-    {
-      key: "manual",
-      label: "Manual",
-      icon: "󱌣",
-      folder: "11-Manual-Projects",
-      frontmatter: ["type: project", "status: idea", "priority: medium", "tags:", "  - project", "  - manual"]
-    },
-    {
-      key: "travel",
-      label: "Viaje",
-      icon: "󰀝",
-      folder: "16-Travel",
-      frontmatter: ["type: travel", "status: idea", "tags:", "  - travel"]
-    }
-  ]
-
-  signal noteSaved(string folder)
-
-  function categoryFor(key) {
-    for (var i = 0; i < categories.length; i++) {
-      if (categories[i].key === key) return categories[i]
-    }
-    return categories[0]
-  }
+  signal saveFinished(bool ok, string path, string reason)
 
   function today() {
     var now = new Date()
@@ -64,46 +25,16 @@ BarWidget {
     return now.getFullYear() + "-" + month + "-" + day
   }
 
-  // Obsidian titles are filenames, so the text has to survive as one: strip the
-  // characters a filename cannot hold and collapse whitespace.
-  function toFilename(text) {
-    var clean = String(text || "")
-      .replace(/[\/\\:*?"<>|]/g, " ")
-      .replace(/\s+/g, " ")
-      .replace(/^\s+|\s+$/g, "")
-    if (clean.length > 80) clean = clean.slice(0, 80).replace(/\s+\S*$/, "")
-    return clean === "" ? "Sin titulo" : clean
-  }
-
-  function buildNote(category, title) {
-    var lines = ["---"]
-    for (var i = 0; i < category.frontmatter.length; i++) lines.push(category.frontmatter[i])
-    lines.push("created: " + today())
-    lines.push("---")
-    lines.push("")
-    lines.push("# " + title)
-    lines.push("")
-    return lines.join("\n")
-  }
-
-  function save(categoryKey, text) {
-    var title = toFilename(text)
-    if (title === "") return
-
-    var category = categoryFor(categoryKey)
-    // Arguments are passed as argv rather than interpolated into the script, so
-    // quotes or shell metacharacters in a note title are just text.
-    saveProc.command = [
-      "sh", "-c",
-      'dir="$1"; base="$2"; body="$3"; mkdir -p "$dir"; f="$dir/$base.md"; n=1; ' +
-      'while [ -e "$f" ]; do n=$((n+1)); f="$dir/$base $n.md"; done; printf "%s" "$body" > "$f"',
-      "sh",
-      vaultPath + "/" + category.folder,
-      title,
-      buildNote(category, title)
-    ]
+  function save(categoryKey, title, values, notes) {
+    var category = Capture.categoryFor(categoryKey)
+    var cleanTitle = Capture.toFilename(title)
+    var body = Capture.buildNote(categoryKey, cleanTitle, values, notes, today())
+    // Body travels as an argv element, not stdin: Quickshell's Process has no
+    // confirmed way to signal EOF on a stdin pipe, and this is exactly how
+    // this widget's own save() already passed a multi-line body successfully.
+    saveProc.command = ["omarchy-capture", vaultPath + "/" + category.folder, cleanTitle, body]
+    saveTimeout.restart()
     saveProc.running = true
-    root.noteSaved(category.folder)
   }
 
   function openInObsidian(relativePath) {
@@ -138,7 +69,31 @@ BarWidget {
   onBarChanged: injectPanel()
   onSettingsChanged: injectPanel()
 
-  Process { id: saveProc }
+  Process {
+    id: saveProc
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: {
+        saveTimeout.stop()
+        try {
+          var data = JSON.parse(String(text || "{}"))
+          root.saveFinished(data.ok === true, data.path || "", data.reason || "")
+        } catch (error) {
+          root.saveFinished(false, "", "respuesta ilegible de omarchy-capture")
+        }
+      }
+    }
+  }
+
+  // A process that fails to start (omarchy-capture missing from PATH) never
+  // reaches onStreamFinished — Quickshell's Process has no confirmed public
+  // signal for that failure, only exited(), which Qt does not emit when a
+  // process never started. A plain timeout is what actually catches it.
+  Timer {
+    id: saveTimeout
+    interval: 4000
+    onTriggered: root.saveFinished(false, "", "omarchy-capture no respondió — ¿está en el PATH?")
+  }
 
   Loader {
     id: panelLoader
