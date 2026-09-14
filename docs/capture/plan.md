@@ -40,7 +40,7 @@
   - `toFilename(text) -> string` — unchanged behavior from the current `BarWidget.qml` (strip `/\:*?"<>|`, collapse whitespace, cut at 80 chars on a word boundary, `"Sin titulo"` when empty).
   - `buildNote(categoryKey, title, values, notes, created) -> string` — the finished markdown, `created` a pre-formatted `"YYYY-MM-DD"` string.
 
-- [ ] **Step 1: Copy the test harness**
+- [x] **Step 1: Copy the test harness**
 
 ```bash
 cd ~/dotfiles/.config/omarchy/plugins/marcos.vault-capture
@@ -48,7 +48,7 @@ mkdir -p test
 cp ../marcos.metrics/test/load.mjs test/load.mjs
 ```
 
-- [ ] **Step 2: Write the failing tests**
+- [x] **Step 2: Write the failing tests**
 
 ```javascript
 // test/capture.test.mjs
@@ -292,12 +292,12 @@ test("saga is written bare when absent, like the vault's own game notes", () => 
 })
 ```
 
-- [ ] **Step 3: Run the tests to verify they fail**
+- [x] **Step 3: Run the tests to verify they fail**
 
 Run: `cd ~/dotfiles/.config/omarchy/plugins/marcos.vault-capture && deno test --allow-read test/capture.test.mjs`
 Expected: FAIL — `Capture.js` does not exist yet, `loadQmlJs` throws ENOENT.
 
-- [ ] **Step 4: Write the implementation**
+- [x] **Step 4: Write the implementation**
 
 ```javascript
 // Capture.js
@@ -696,12 +696,12 @@ function buildNote(categoryKey, title, values, notes, created) {
 }
 ```
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 Run: `cd ~/dotfiles/.config/omarchy/plugins/marcos.vault-capture && deno test --allow-read test/capture.test.mjs`
 Expected: PASS, 21 tests.
 
-- [ ] **Step 6: Commit** (ask the user first)
+- [x] **Step 6: Commit** (ask the user first)
 
 ```bash
 cd ~/dotfiles
@@ -721,7 +721,7 @@ git commit -m "feat(capture): category table and note builders"
 - Consumes: nothing external.
 - Produces: a CLI, `omarchy-capture <folder> <title> <body>`, that creates `<folder>` if missing, writes `<title>.md` (or `<title> 2.md`, `<title> 3.md`, ... on collision) with `<body>` as its content, and prints `{"ok": bool, "path": str, "reason": str}` on stdout. Always exits 0.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```python
 # tests/test_omarchy_capture.py
@@ -798,12 +798,12 @@ def test_unicode_and_quotes_in_title_survive(tmp_path):
     assert Path(data["path"]).read_text() == "body"
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `cd ~/dotfiles && uv run --with pytest pytest tests/test_omarchy_capture.py -q`
 Expected: FAIL — `omarchy-capture` does not exist yet.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 ```python
 #!/usr/bin/env python3
@@ -865,12 +865,12 @@ chmod +x ~/dotfiles/.local/bin/omarchy-capture
 ln -sfn ~/dotfiles/.local/bin/omarchy-capture ~/.local/bin/omarchy-capture
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `cd ~/dotfiles && uv run --with pytest pytest tests/test_omarchy_capture.py -q`
 Expected: PASS, 7 tests.
 
-- [ ] **Step 5: Commit** (ask the user first)
+- [x] **Step 5: Commit** (ask the user first)
 
 ```bash
 cd ~/dotfiles
@@ -891,7 +891,7 @@ git commit -m "feat(capture): omarchy-capture writes the note, replacing the inl
 
 There is no dedicated multi-line input in `qs.Ui` (only `TextField`, single-line). Checked against the installed Qt 6 `QtQuick.Templates` (`TextArea` has `hovered`, `hoverEnabled`, `placeholderText`, `placeholderTextColor`, `background` — the same surface `TextField.qml` already styles), so this mirrors `qs.Ui/TextField.qml` line for line, swapping the base type.
 
-- [ ] **Step 1: Write the component**
+- [x] **Step 1: Write the component**
 
 ```qml
 // MultilineField.qml
@@ -939,11 +939,11 @@ TextArea {
 }
 ```
 
-- [ ] **Step 2: No automated test for this file**
+- [x] **Step 2: No automated test for this file**
 
 Headless QML does not run on this machine (`qml`/`qmltestrunner` exit silently — the same limitation `docs/dashboard/plan.md` hit). This component is verified visually in Task 4's manual pass, alongside the panel that uses it.
 
-- [ ] **Step 3: Commit** (ask the user first)
+- [x] **Step 3: Commit** (ask the user first)
 
 ```bash
 cd ~/dotfiles
@@ -1418,7 +1418,7 @@ Panel {
 }
 ```
 
-- [ ] **Step 3: Apply the sync and restart the shell**
+- [x] **Step 3: Apply the sync and restart the shell**
 
 ```bash
 OMARCHY_PATH=/usr/share/omarchy omarchy-style >/dev/null  # re-applies bar colours after any restart
@@ -1426,7 +1426,7 @@ OMARCHY_PATH=/usr/share/omarchy omarchy restart shell
 sleep 8
 ```
 
-- [ ] **Step 4: Verify the panel opens and shows all seven categories**
+- [x] **Step 4: Verify the panel opens and shows all seven categories**
 
 ```bash
 OMARCHY_PATH=/usr/share/omarchy omarchy-shell shell summon marcos.vault-capture '{}'
@@ -1435,7 +1435,7 @@ grim -o DP-3 /tmp/capture.png
 ```
 Read `/tmp/capture.png`. Expected: "Captura rápida" title, seven chips wrapped across two rows, a Título field, and — with Idea selected by default — no extra fields, just the Notas box and the recents strip.
 
-- [ ] **Step 5: Verify a category with fields renders its chips and text fields**
+- [x] **Step 5: Verify a category with fields renders its chips and text fields**
 
 ```bash
 ydotool mousemove -a -x <coords-of-the-Juego-chip>; sleep 0.3; ydotool click 0xC0
@@ -1444,7 +1444,7 @@ grim -o DP-3 /tmp/capture-game.png
 ```
 Read `/tmp/capture-game.png`. Expected: Saga/Género/Año/Steam ID text fields and a Por jugar / Jugando / Jugado chip row, Por jugar selected by default (the chip visually marked `selected`).
 
-- [ ] **Step 6: Capture one real note per category and verify each lands correctly**
+- [x] **Step 6: Capture one real note per category and verify each lands correctly**
 
 For each category: click its chip, type a title (and for game/movie/travel a couple of the extra fields), press Enter, confirm the green "Guardado: …" status appears. Then, from a terminal:
 
@@ -1458,7 +1458,7 @@ Expected: every note matches its `buildNote` golden shape from Task 1 with the r
 - the game note's `status` reads `to-play` (not "Por jugar") — this is the check that chips are storing English while showing Spanish.
 - the travel note is the first file ever written to `~/Vault/16-Travel/`.
 
-- [ ] **Step 7: Verify a save failure keeps the typed text**
+- [x] **Step 7: Verify a save failure keeps the typed text**
 
 ```bash
 sudo chmod 000 ~/Vault/16-Travel
@@ -1468,7 +1468,7 @@ Capture a travel note. Expected: the status line turns red/error-colored and the
 sudo chmod 755 ~/Vault/16-Travel
 ```
 
-- [ ] **Step 8: Commit** (ask the user first)
+- [x] **Step 8: Commit** (ask the user first)
 
 ```bash
 cd ~/dotfiles
@@ -1487,7 +1487,7 @@ This file is outside the dotfiles git repository (the vault has no git of its ow
 
 **Interfaces:** none; documentation only.
 
-- [ ] **Step 1: Add the Travel schema**
+- [x] **Step 1: Add the Travel schema**
 
 In the "Frontmatter schemas" section, immediately after the Project schema block, add:
 
@@ -1505,11 +1505,11 @@ tags: [travel]
 ```
 ```
 
-- [ ] **Step 2: Add the row to the folder-structure table and dashboards line**
+- [x] **Step 2: Add the row to the folder-structure table and dashboards line**
 
 Add a row to the folder table: `| `16-Travel/` | One note per place. No dashboard yet — created by this feature; add one when there are enough notes to be worth a panel. |`
 
-- [ ] **Step 3: Verify the file is still valid markdown**
+- [x] **Step 3: Verify the file is still valid markdown**
 
 ```bash
 grep -n "^\`\`\`" ~/Vault/CLAUDE.md | wc -l
