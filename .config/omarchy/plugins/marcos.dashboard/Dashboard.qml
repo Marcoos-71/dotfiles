@@ -61,7 +61,9 @@ Item {
     Rectangle {
       id: scrim
       anchors.fill: parent
-      color: Color.menu.scrim
+      // The theme's scrim is a 0.5 veil meant to carry the separation alone.
+      // With the compositor blurring what is behind, it can recede.
+      color: Qt.rgba(Color.menu.scrim.r, Color.menu.scrim.g, Color.menu.scrim.b, T.scrimAlpha)
       opacity: root.opened ? 1 : 0
       // Leaving is quicker than arriving: it is what makes the surface feel
       // responsive rather than slow.

@@ -64,3 +64,25 @@ hl.config({
     rounding = 8,
   },
 })
+
+-- Desenfoque: apagado para ventanas a proposito. Omarchy les pone
+-- opacity 0.985, asi que blur global costaria una pasada por ventana sin
+-- ganancia visible. Solo las superficies propias lo piden por namespace.
+hl.config({
+  decoration = {
+    blur = {
+      enabled = true,
+      size = 8,
+      passes = 2,
+      new_optimizations = true,
+      ignore_opacity = true,
+    },
+  },
+})
+
+o.window(".*", { no_blur = true })
+
+-- `hyprctl keyword` no vale en 0.56 con el parser Lua ("keyword can't work
+-- with non-legacy parsers"), asi que la regla se escribe como hl.layer_rule,
+-- igual que las de omarchy-shell.lua.
+hl.layer_rule({ match = { namespace = "marcos-dashboard" }, blur = true })
