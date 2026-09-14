@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Print today's calendar events as JSON for the Omarchy dashboard."""
 
+import calendar
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -9,6 +11,8 @@ from pathlib import Path
 
 SEPARATOR = "|"
 FORMAT = "{start-time}|{end-time}|{title}|{location}"
+
+MONTH_FORMAT = "{start-date}"
 
 SETUP_HINT = (
     "khal not found. Install it and sync a calendar:\n"
@@ -54,7 +58,59 @@ def parse_line(line):
     }
 
 
+def emit_month(ok, days, reason=""):
+    payload = {"ok": ok, "reason": reason, "days": days}
+    json.dump(payload, sys.stdout, ensure_ascii=False)
+    sys.stdout.write("\n")
+    return 0
+
+
+def parse_days(text, month):
+    """Pull day numbers out of khal's dd.mm. dates, keeping only this month."""
+    days = set()
+    for match in re.finditer(r"\b(\d{1,2})\.(\d{1,2})\.", str(text or "")):
+        day, found_month = int(match.group(1)), int(match.group(2))
+        if found_month == month and 1 <= day <= 31:
+            days.add(day)
+    return sorted(days)
+
+
+def run_month(argument):
+    match = re.fullmatch(r"(\d{4})-(\d{2})", argument or "")
+    if not match:
+        return emit_month(False, [], "expected --month YYYY-MM")
+    year, month = int(match.group(1)), int(match.group(2))
+    if not 1 <= month <= 12:
+        return emit_month(False, [], "expected --month YYYY-MM")
+
+    if shutil.which("khal") is None:
+        return emit_month(False, [], "khal is not installed - run omarchy-agenda --setup")
+
+    last = calendar.monthrange(year, month)[1]
+    # khal parses a range with the longdateformat from its own config, which is
+    # %d.%m.%Y here; an ISO date is rejected before the query even runs.
+    first_day = f"01.{month:02d}.{year}"
+    last_day = f"{last:02d}.{month:02d}.{year}"
+    try:
+        result = subprocess.run(
+            ["khal", "--no-color", "list", "--day-format", "", "--format", MONTH_FORMAT,
+             first_day, last_day],
+            capture_output=True, text=True, timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError) as error:
+        return emit_month(False, [], f"khal failed: {error}")
+
+    if result.returncode != 0:
+        return emit_month(False, [], (result.stderr or "khal exited non-zero").strip())
+
+    return emit_month(True, parse_days(result.stdout, month))
+
+
 def main():
+    if "--month" in sys.argv:
+        index = sys.argv.index("--month")
+        return run_month(sys.argv[index + 1] if index + 1 < len(sys.argv) else "")
+
     if "--setup" in sys.argv:
         sys.stderr.write(SETUP_HINT)
         return 0

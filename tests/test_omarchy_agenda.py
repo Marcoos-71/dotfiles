@@ -97,3 +97,69 @@ def test_khal_failure_reports_a_reason(tmp_path):
     assert result.returncode == 0
     assert data["ok"] is False
     assert data["events"] == []
+
+
+def recording_khal(tmp_path, stdout=""):
+    """A khal stub that writes the argv it was called with to argv.txt."""
+    directory = bin_dir(tmp_path)
+    khal = directory / "khal"
+    argv_file = tmp_path / "argv.txt"
+    khal.write_text(
+        "#!/usr/bin/env python3\n"
+        "import sys\n"
+        f"open({str(argv_file)!r}, 'w').write('\\n'.join(sys.argv[1:]))\n"
+        f"sys.stdout.write({stdout!r})\n"
+    )
+    khal.chmod(khal.stat().st_mode | stat.S_IEXEC)
+    return directory, argv_file
+
+
+def run_month(path_dir, month="2026-09"):
+    env = dict(os.environ, PATH=str(path_dir))
+    result = subprocess.run(
+        [str(SCRIPT), "--month", month], capture_output=True, text=True, env=env
+    )
+    return result, json.loads(result.stdout)
+
+
+def test_month_lists_days_with_events(tmp_path):
+    out = "07.09.\n17.09.\n17.09.\n"
+    result, data = run_month(fake_khal(tmp_path, out))
+    assert result.returncode == 0
+    assert data["ok"] is True
+    assert data["days"] == [7, 17]
+
+
+def test_month_with_no_events_is_an_empty_list(tmp_path):
+    result, data = run_month(fake_khal(tmp_path, ""))
+    assert data["ok"] is True
+    assert data["days"] == []
+
+
+def test_month_without_khal_still_exits_zero(tmp_path):
+    result, data = run_month(bin_dir(tmp_path, "nokhal"))
+    assert result.returncode == 0
+    assert data["ok"] is False
+    assert data["days"] == []
+
+
+def test_month_rejects_a_malformed_argument(tmp_path):
+    result, data = run_month(fake_khal(tmp_path, ""), month="septiembre")
+    assert result.returncode == 0
+    assert data["ok"] is False
+    assert "YYYY-MM" in data["reason"]
+
+
+def test_month_asks_khal_in_the_date_format_it_parses(tmp_path):
+    # khal reads a range in its configured longdateformat (%d.%m.%Y here) and
+    # rejects ISO dates outright, so the range arguments are the contract.
+    directory, argv_file = recording_khal(tmp_path)
+    run_month(directory)
+    argv = argv_file.read_text().splitlines()
+    assert argv[-2:] == ["01.09.2026", "30.09.2026"]
+
+
+def test_month_ignores_events_from_a_neighbouring_month(tmp_path):
+    out = "31.08.\n01.09.\n01.10.\n"
+    _, data = run_month(fake_khal(tmp_path, out))
+    assert data["days"] == [1]
