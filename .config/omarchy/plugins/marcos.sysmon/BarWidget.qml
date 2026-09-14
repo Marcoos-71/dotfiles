@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Io
 import qs.Commons
 import qs.Ui
+import "Tokens.js" as T
 
 // CPU / RAM / temperatures, read from procfs and sysfs with no periodic
 // subprocess: /proc/stat and /proc/meminfo give CPU and memory, and the hwmon
@@ -52,6 +53,16 @@ BarWidget {
   readonly property int hottest: Math.max(cpuTemp, gpuTemp)
   readonly property bool warm: hottest >= 65 && hottest < 80
   readonly property bool hot: hottest >= 80
+
+  // WidgetButton is Omarchy's and cannot carry our Behavior, so the animation
+  // lives on a local property and the button reads that.
+  readonly property color targetColor: root.hot ? Color.urgent
+    : (root.warm ? warnColor.value : "#a6e3a1")
+  property color animatedColor: targetColor
+  Behavior on animatedColor {
+    ColorAnimation { duration: T.motionInstant; easing.type: Easing.OutCubic }
+  }
+  onTargetColorChanged: animatedColor = targetColor
 
   function fmtPercent(value) {
     return value < 0 ? "--" : Math.round(value) + "%"
@@ -161,7 +172,7 @@ BarWidget {
     // Normal state deliberately leaves `foreground` to the bar: on a
     // transparent bar the shell samples the wallpaper (omarchy-bar-text-color)
     // to pick a readable text color, and hardcoding one fights that.
-    foreground: root.hot ? Color.urgent : (root.warm ? warnColor.value : "#a6e3a1")
+    foreground: root.animatedColor
     fontSize: Style.font.caption
     horizontalMargin: 8
     tooltipText: "CPU " + root.fmtPercent(root.cpuPercent)

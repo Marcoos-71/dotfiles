@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Io
 import qs.Commons
 import qs.Ui
+import "Tokens.js" as T
 
 // Download/upload throughput straight from sysfs byte counters, with no
 // subprocess at all: the default interface comes from /proc/net/route and the
@@ -48,6 +49,15 @@ BarWidget {
 
   readonly property bool transferring: rxRate + txRate > transferThreshold
   readonly property bool known: rxRate >= 0 && txRate >= 0
+
+  // WidgetButton is Omarchy's and cannot carry our Behavior, so the animation
+  // lives on a local property and the button reads that.
+  readonly property color targetColor: root.transferring ? Color.accent : "#a6e3a1"
+  property color animatedColor: targetColor
+  Behavior on animatedColor {
+    ColorAnimation { duration: T.motionInstant; easing.type: Easing.OutCubic }
+  }
+  onTargetColorChanged: animatedColor = targetColor
 
   function fmtRate(bytesPerSecond) {
     if (bytesPerSecond < 0) return "--"
@@ -149,7 +159,7 @@ BarWidget {
     text: root.vertical ? root.fmtRate(root.rxRate) : root.label
     // Only the transfer state overrides the color; the idle state inherits the
     // bar's own foreground, which adapts to the wallpaper on a transparent bar.
-    foreground: root.transferring ? Color.accent : "#a6e3a1"
+    foreground: root.animatedColor
     fontSize: Style.font.caption
     horizontalMargin: 8
     tooltipText: root.iface === ""
