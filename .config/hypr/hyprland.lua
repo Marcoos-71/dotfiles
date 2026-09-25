@@ -26,5 +26,9 @@ require("hypr.autostart")
 -- Toggle config flags dynamically.
 require("default.hypr.toggles")
 
+-- Activity logger for ~/Projects/wrapped. Kill switch: ~/.local/state/wrapped/logger-off
+package.loaded["hypr.wrapped"] = nil
+pcall(require, "hypr.wrapped")
+
 -- Add any other personal Hyprland configuration below.
 -- o.window("qemu", { workspace = "5" })
