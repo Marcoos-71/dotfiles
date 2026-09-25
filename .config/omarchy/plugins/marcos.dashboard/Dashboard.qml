@@ -224,6 +224,13 @@ Item {
               active: root.opened
               shell: root.shell
             }
+
+            // How the machine was used, under how it is doing: this column is
+            // the one with room, and a fourth would squeeze the sparklines.
+            Wrapped {
+              width: parent.width
+              active: root.opened
+            }
           }
         }
       }

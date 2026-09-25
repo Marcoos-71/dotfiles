@@ -71,13 +71,14 @@ Column {
     visible: root.today !== null
     spacing: Style.spacing.sm
     Text {
+      id: activeText
       text: root.today ? W.fmtMinutes(root.today.activeMinutes) : ""
       color: Color.menu.text
       font.family: Style.font.family
       font.pixelSize: Style.font.body
     }
     Text {
-      anchors.baseline: parent.children[0].baseline
+      anchors.baseline: activeText.baseline
       text: "activo"
       color: Color.muted
       font.family: Style.font.family
@@ -86,7 +87,7 @@ Column {
     }
     Text {
       visible: root.today !== null && root.today.keys !== null
-      anchors.baseline: parent.children[0].baseline
+      anchors.baseline: activeText.baseline
       text: root.today ? W.fmtCount(root.today.keys) : ""
       color: Color.menu.text
       font.family: Style.font.family
@@ -94,7 +95,7 @@ Column {
     }
     Text {
       visible: root.today !== null && root.today.keys !== null
-      anchors.baseline: parent.children[0].baseline
+      anchors.baseline: activeText.baseline
       text: "teclas"
       color: Color.muted
       font.family: Style.font.family
@@ -195,7 +196,7 @@ Column {
       Row {
         spacing: Style.spacing.xs
         Text {
-          text: "último logro"
+          text: "último logro" + (root.achievement && W.tierName(root.achievement.tier) !== "" ? " ·" : "")
           color: Color.muted
           font.family: Style.font.family
           font.pixelSize: Style.font.caption
