@@ -7,6 +7,7 @@ local RAW_DIR = HOME .. "/.local/share/wrapped/raw/hypr"
 local STATE_DIR = HOME .. "/.local/state/wrapped"
 local MAX_ERRORS = 20
 local KEY_FLUSH_EVERY = 500
+local INPUT_GAP_S = 60
 local TITLE_MAX = 200
 local REDACT_CLASSES = { "bitwarden", "1password", "keepassxc" }
 local REDACT_TITLES = { "Private Browsing", "Navegación privada", "Incognito", "Incógnito" }
@@ -21,7 +22,7 @@ if W.file then
 end
 W.subs, W.file, W.month = {}, nil, nil
 W.errors, W.calls, W.cpu = 0, 0, 0
-W.keys, W.focus_class = 0, ""
+W.keys, W.focus_class, W.last_key = 0, "", os.time()
 
 local function exists(path)
   local f = io.open(path, "r")
@@ -135,6 +136,11 @@ local handlers = {
   end,
   ["input.keyboard.key"] = function(_, _, state)
     if state ~= 1 then return end
+    local now = os.time()
+    if now - W.last_key >= INPUT_GAP_S then
+      write("input", W.focus_class, "", tostring(now - W.last_key))
+    end
+    W.last_key = now
     W.keys = W.keys + 1
     if W.keys >= KEY_FLUSH_EVERY then flush_keys() end
   end,
